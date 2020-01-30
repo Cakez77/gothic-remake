@@ -1,0 +1,11 @@
+{
+    "editor.fontSize": 14,
+    "git.ignoreLimitWarning": true,
+    "files.exclude": {
+        ".vs": true,
+        ".vscode": true,
+        "**/*.meta": true,
+        "Temp": true
+    },
+    "editor.accessibilityPageSize": 14
+}
