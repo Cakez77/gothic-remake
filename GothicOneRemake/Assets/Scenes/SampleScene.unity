@@ -254,26 +254,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1aa7bf25b446c4baa8e0af352f470d1b, type: 3}
---- !u!1 &1057201026 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3598722310420044152, guid: 6cd61f913653401438f58a27ed6fd69d,
-    type: 3}
-  m_PrefabInstance: {fileID: 3598722310504153850}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1057201028
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1057201026}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2a27ba0591db8a459316262e782ac4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 5
-  jump_Force: 10
 --- !u!1001 &3598722310504153850
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -341,9 +321,19 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 9019521234674510920, guid: 6cd61f913653401438f58a27ed6fd69d,
+    - target: {fileID: 5481766529302467563, guid: 6cd61f913653401438f58a27ed6fd69d,
         type: 3}
-      propertyPath: m_Layer
+      propertyPath: m_PlayOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5481766529302467563, guid: 6cd61f913653401438f58a27ed6fd69d,
+        type: 3}
+      propertyPath: Mute
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5481766529302467563, guid: 6cd61f913653401438f58a27ed6fd69d,
+        type: 3}
+      propertyPath: Loop
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
