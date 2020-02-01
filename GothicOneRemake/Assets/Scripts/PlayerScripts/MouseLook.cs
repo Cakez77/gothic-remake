@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class MouseLook : MonoBehaviour {
-    
+
     [SerializeField]
     private Transform playerRoot, lookRoot;
 
@@ -42,12 +42,15 @@ public class MouseLook : MonoBehaviour {
 
     private void Update() {
         LockAndUnlockCursor();
-        LookAround();
+
+        if (Cursor.lockState == CursorLockMode.Locked) {
+            LookAround();
+        }
     }
 
     void LockAndUnlockCursor() {
-        if(Input.GetKeyDown(KeyCode.Escape)){
-            if(Cursor.lockState == CursorLockMode.Locked){
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            if (Cursor.lockState == CursorLockMode.Locked) {
                 Cursor.lockState = CursorLockMode.None;
             } else {
                 Cursor.lockState = CursorLockMode.Locked;
@@ -57,7 +60,7 @@ public class MouseLook : MonoBehaviour {
     }
 
     void LookAround() {
-        current_Mouse_Look = new Vector2 (Input.GetAxis(MouseAxis.MOUSE_Y), Input.GetAxis(MouseAxis.MOUSE_X));
+        current_Mouse_Look = new Vector2(Input.GetAxis(MouseAxis.MOUSE_Y), Input.GetAxis(MouseAxis.MOUSE_X));
 
         look_Angles.x += current_Mouse_Look.x * sensitivity * (invert ? 1f : -1f);
 
@@ -66,7 +69,7 @@ public class MouseLook : MonoBehaviour {
         // Clamp the look angle along the X Axis
         look_Angles.x = Mathf.Clamp(look_Angles.x, default_Look_Limits.x, default_Look_Limits.y);
 
-        current_Roll_Angle = 
+        current_Roll_Angle =
             Mathf.Lerp(current_Roll_Angle, Input.GetAxisRaw(MouseAxis.MOUSE_X) * roll_Angle, Time.deltaTime * roll_Speed);
 
         lookRoot.localRotation = Quaternion.Euler(look_Angles.x, 0f, current_Roll_Angle);

@@ -48,6 +48,7 @@ public class PlayerFootsteps : MonoBehaviour {
                 accumulated_Distance = 0f;
             }
         } else {
+            // TODO: Sneak, possible
             accumulated_Distance = 0f;
         }
     }
