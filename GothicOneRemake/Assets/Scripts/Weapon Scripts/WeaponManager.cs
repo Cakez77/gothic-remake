@@ -42,4 +42,8 @@ public class WeaponManager : MonoBehaviour {
             weapons[current_Weapon_Index].gameObject.SetActive(true);
         }
     }
+
+    public WeaponHandler GetCurrentSelectedWeapon() {
+        return weapons[current_Weapon_Index];
+    }
 } // class

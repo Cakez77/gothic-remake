@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Axe
+  - Look Root
+  - Crosshair
+  - FP Camera
+  - Arrow
+  - Spear
   layers:
   - Default
   - TransparentFX

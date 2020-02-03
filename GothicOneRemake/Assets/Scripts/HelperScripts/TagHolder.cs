@@ -23,7 +23,7 @@ public class AnimationTags {
 
 public class Tags {
 
-    public const string LOOK_ROOT = "Loor Root";
+    public const string LOOK_ROOT = "Look Root";
     public const string ZOOM_CAMERA = "FP Camera";
     public const string CROSSHAIR = "Crosshair";
     public const string ARROW_TAG = "Arrow";
