@@ -1367,6 +1367,7 @@ Transform:
   - {fileID: 1662655556903501798}
   - {fileID: 1662655556903501714}
   - {fileID: 1662655556903501754}
+  - {fileID: 1832581643181899684}
   m_Father: {fileID: 1662655556903501772}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1607,9 +1608,10 @@ GameObject:
   - component: {fileID: 7095395968349302535}
   - component: {fileID: 6513307281406427508}
   - component: {fileID: 6513307281406427510}
-  m_Layer: 0
+  - component: {fileID: 2095927958298147908}
+  m_Layer: 10
   m_Name: Cannibal
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1723,6 +1725,7 @@ MonoBehaviour:
   patrol_Radius_Max: 60
   patrol_For_This_Time: 15
   wait_Before_Attack: 2
+  attack_Point: {fileID: 3531469604278766420}
 --- !u!114 &6513307281406427510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1735,6 +1738,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2154d6379bb78940aa18eea622d8bf7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2095927958298147908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662655556903003120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa57e30c599d2d74bbfb8b05c716aa11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 100
+  is_Player: 0
+  is_Boar: 0
+  is_Cannibal: 1
 --- !u!1 &1662655556903003122
 GameObject:
   m_ObjectHideFlags: 0
@@ -2158,3 +2177,51 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.023270786, y: 0.0012278557, z: 0.013268635}
     m_Extent: {x: 0.9817472, y: 1.0214752, z: 0.32631338}
   m_DirtyAABB: 0
+--- !u!1 &3531469604278766420
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1832581643181899684}
+  - component: {fileID: 2631279611815455666}
+  m_Layer: 0
+  m_Name: Attack Point
+  m_TagString: Untagged
+  m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1832581643181899684
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3531469604278766420}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.109, y: -0.002, z: 0.001}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1662655556903501760}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2631279611815455666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3531469604278766420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc2ad412adf71b04aa2f4275a502d328, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  radius: 1
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 2048

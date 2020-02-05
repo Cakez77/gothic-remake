@@ -10,6 +10,7 @@ TagManager:
   - FP Camera
   - Arrow
   - Spear
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -21,8 +22,8 @@ TagManager:
   - 
   - PostProcessing
   - FirstPerson
-  - 
-  - 
+  - Enemy
+  - Player
   - 
   - 
   - 
