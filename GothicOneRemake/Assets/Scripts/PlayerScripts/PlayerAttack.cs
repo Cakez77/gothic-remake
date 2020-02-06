@@ -4,7 +4,7 @@ public class PlayerAttack : MonoBehaviour {
 
     private WeaponManager weapon_Manager;
 
-    public float fireRate = 15f;
+    public float fireRate = 0.1f;
     private float nextTimeToFire;
     public float damage = 20f;
 
@@ -46,8 +46,7 @@ public class PlayerAttack : MonoBehaviour {
 
             // if we press and hold
             if (Input.GetMouseButton(0) && Time.time > nextTimeToFire) {
-
-                nextTimeToFire = Time.time + 1f / fireRate;
+                nextTimeToFire = Time.time + (1f / fireRate);
 
                 weapon_Manager.GetCurrentSelectedWeapon().ShootAnimation();
 
