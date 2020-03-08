@@ -9,6 +9,7 @@ using Unity.Transforms;
 This system calculates the velocity for every entity in the game. Included 
 in the velocity is gravity and player input.
 */
+// TODO: Look into TranslationSystemGroup and if you need to update after it
 public class VelocitySystem : SystemBase
 {
 
@@ -16,7 +17,7 @@ public class VelocitySystem : SystemBase
     {
         var playerInput = GetSingleton<PlayerInput>();
         var gravity = GetSingleton<Gravity>();
-        var grounded = GetSingleton<Grounded>();
+        // var grounded = GetSingleton<Grounded>();
 
         BuildPhysicsWorld buildPhysicsWorld = World.DefaultGameObjectInjectionWorld.GetExistingSystem<BuildPhysicsWorld>();
         CollisionWorld collisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
@@ -52,12 +53,16 @@ public class VelocitySystem : SystemBase
                     // TODO: Add playerHeight and make all of this better
                     if (translation.Value.y <= raycastHit.Position.y + 1)
                     {
-                        translation.Value.y = raycastHit.Position.y + 1;
+                        // This is making me fly when not colliding with something on the ground
+                        // and no gravity is applied.
+                        // TODO: Commented out the line below for later review
+                        // translation.Value.y = raycastHit.Position.y + 1;
                     }
 
                     currentGravity = 0;
-                    Debug.DrawRay(fromPosition, relativePosition, Color.green, 0.2f);
-                    Debug.Log("HitPosition: " + raycastHit.Position);
+                    // TODO: Only here for debug reasons
+                    // Debug.DrawRay(fromPosition, relativePosition, Color.green, 0.2f);
+                    // Debug.Log("HitPosition: " + raycastHit.Position);
 
                 }
                 else
@@ -67,6 +72,7 @@ public class VelocitySystem : SystemBase
 
                 // Set the velocity and taking into account the jump height
                 velocity.Value = new float3(playerInput.KeyMovement.x, playerInput.Space * 4f + currentGravity, playerInput.KeyMovement.y);
+                Debug.Log("The calculated Velocity from the VelocitySystem: " + velocity.Value);
 
 
             }).WithoutBurst().Run();

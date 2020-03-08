@@ -8,6 +8,7 @@ using UnityEngine;
 This class updates the players rotation and position based on
 the player input.
 */
+// [UpdateAfter(typeof(PlayerCollisionCheck))]
 [UpdateAfter(typeof(TransformSystemGroup))]
 public class PlayerMovementSystem : SystemBase {
 
@@ -23,6 +24,8 @@ public class PlayerMovementSystem : SystemBase {
             // Calculate the target position for the palyer to move to using the suppied velocity and the 
             // LocalToWorld component
             float3 targetPosition = new float3(0, velocity.Value.y, 0) + (localToWorld.Forward * velocity.Value.z + localToWorld.Right * velocity.Value.x);
+            // Debug.Log("The velocity applied here: " +velocity.Value);
+            // Debug.Log("The new targetPosition: " + targetPosition);
 
             translation.Value += targetPosition * Time.DeltaTime * movementSpeed;
             // TODO: Read up on movement

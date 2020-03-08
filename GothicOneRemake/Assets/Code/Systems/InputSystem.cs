@@ -8,9 +8,9 @@ using UnityEngine;
 public class InputSystem : SystemBase {
 
     protected override void OnCreate() {
-
         // Create an Entity to hold data about the player Input
-        EntityManager.CreateEntity(typeof(PlayerInput));
+        // var playerInput = EntityManager.CreateEntity(typeof(PlayerInput));
+        // EntityManager.SetName(playerInput, "PlayerInput");
     }
 
     protected override void OnUpdate() {
@@ -27,13 +27,19 @@ public class InputSystem : SystemBase {
         var MouseInput = new float2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
         // TODO: Read up on the new InputSystem and maybe use that.
         var KeyInput = new float2(x, y);
+
+        Entities.ForEach((ref PlayerInput playerInput) => {
+            playerInput.Space = space;
+            playerInput.MouseMovement = MouseInput;
+            playerInput.KeyMovement = KeyInput;
+        }).ScheduleParallel();
         
 
-        SetSingleton(new PlayerInput{
-            Space = space,
-            MouseMovement = MouseInput,
-            KeyMovement = KeyInput
-        });
+        // SetSingleton(new PlayerInput{
+        //     Space = space,
+        //     MouseMovement = MouseInput,
+        //     KeyMovement = KeyInput
+        // });
 
     }
 }
