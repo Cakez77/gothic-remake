@@ -72,7 +72,6 @@ public class VelocitySystem : SystemBase
 
                 // Set the velocity and taking into account the jump height
                 velocity.Value = new float3(playerInput.KeyMovement.x, playerInput.Space * 4f + currentGravity, playerInput.KeyMovement.y);
-                Debug.Log("The calculated Velocity from the VelocitySystem: " + velocity.Value);
 
 
             }).WithoutBurst().Run();
