@@ -6,6 +6,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Burst;
 using Unity.Transforms;
+using Unity.Collections;
 
 [UpdateBefore(typeof(PlayerMovementSystem))]
 [UpdateAfter(typeof(VelocitySystem))]
@@ -29,21 +30,24 @@ public class PlayerCollisionCheck : SystemBase
 
     private struct CollisionJob : ICollisionEventsJob
     {
+        // Create something that holds all collisions for one entity.
+
         // A Rigidbody colided with something
         public void Execute(CollisionEvent collisionEvent)
-        {
+        {    
             Debug.Log("Collision! Entity A: " + collisionEvent.Entities.EntityA + " and Entity B: " + collisionEvent.Entities.EntityB);
         }
     }
 
     protected override void OnUpdate()
     {
+        
+
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
         var collisionJob = new CollisionJob()
         {
-        }.Schedule<CollisionJob>(m_query, JobHandle);
+        }.Schedule(stepPhysicsWorld.Simulation, ref physicsWorld, Dependency);
 
         collisionJob.Complete();
-        return inputDeps;
     }
 }
