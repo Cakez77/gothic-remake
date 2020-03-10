@@ -32,8 +32,9 @@ public class PlayerMovementSystem : SystemBase {
             float3 targetPosition;
             if(float3PlayerBuffer.Length > 0)
             {
-                var direction = math.normalizesafe(localToWorld.Forward,0);
-                targetPosition = new float3(0, velocity.Value.y, 0) + (math.cross(float3PlayerBuffer[0], localToWorld.Up) * velocity.Value.z * direction + localToWorld.Right * velocity.Value.x);
+                // var direction = math.normalizesafe(localToWorld.Forward,0);
+                var direction = float3PlayerBuffer[0];
+                targetPosition = new float3(0, velocity.Value.y, 0) + /*(math.cross(float3PlayerBuffer[0], localToWorld.Up) **/ velocity.Value.z * direction + localToWorld.Right * velocity.Value.x;
                 float3PlayerBuffer.RemoveAt(0);
             }else{
                 targetPosition = new float3(0, velocity.Value.y, 0) + (localToWorld.Forward * velocity.Value.z + localToWorld.Right * velocity.Value.x);

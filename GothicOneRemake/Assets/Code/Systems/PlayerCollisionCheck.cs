@@ -42,6 +42,12 @@ public class PlayerCollisionCheck : SystemBase
             var buffer = lookUp[collisionEvent.Entities.EntityA];
             var float3Buffer = buffer.Reinterpret<float3>();
 
+            // The normal of the collision Event
+            var normal = math.normalizesafe(collisionEvent.Normal, 0);
+
+            // Debugging the normal vector
+            // Debug.Log("The normal vector: " + normal);
+
             float3Buffer.Add(collisionEvent.Normal);
             // Debug.Log("Collision! Entity A: " + collisionEvent.Entities.EntityA + " and Entity B: " + collisionEvent.Entities.EntityB);
         }
