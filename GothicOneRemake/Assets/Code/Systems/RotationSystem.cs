@@ -11,7 +11,7 @@ public class RotationSystem : SystemBase {
         Entities.WithAll<TestTag>().ForEach((ref Rotation rotation) => {
             rotationAcc += Time.DeltaTime;
             rotation.Value = quaternion.RotateY(rotationAcc);
-            
+                      
         }).WithoutBurst().Run();
     }
 }

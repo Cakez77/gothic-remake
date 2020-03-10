@@ -8,6 +8,7 @@ using Unity.Burst;
 using Unity.Transforms;
 using Unity.Collections;
 
+
 [UpdateBefore(typeof(PlayerMovementSystem))]
 [UpdateAfter(typeof(VelocitySystem))]
 [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -22,30 +23,38 @@ public class PlayerCollisionCheck : SystemBase
     {
         buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
         stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
-        var query = new EntityQueryDesc{
-            All = new ComponentType[]{typeof(PhysicsCollider)}
+        var query = new EntityQueryDesc
+        {
+            All = new ComponentType[] { typeof(PhysicsCollider) }
         };
         m_query = GetEntityQuery(query);
     }
 
     private struct CollisionJob : ICollisionEventsJob
     {
-        // Create something that holds all collisions for one entity.
+        public BufferFromEntity<Float3Buffer> lookUp;
 
         // A Rigidbody colided with something
         public void Execute(CollisionEvent collisionEvent)
-        {    
-            Debug.Log("Collision! Entity A: " + collisionEvent.Entities.EntityA + " and Entity B: " + collisionEvent.Entities.EntityB);
+        {
+
+            // Addiere den Index der Entity mit der der Player Kollidiert ist zum int buffer des players hinzu.
+            var buffer = lookUp[collisionEvent.Entities.EntityA];
+            var float3Buffer = buffer.Reinterpret<float3>();
+
+            float3Buffer.Add(collisionEvent.Normal);
+            // Debug.Log("Collision! Entity A: " + collisionEvent.Entities.EntityA + " and Entity B: " + collisionEvent.Entities.EntityB);
         }
     }
 
     protected override void OnUpdate()
     {
-        
 
+        var lookUp = GetBufferFromEntity<Float3Buffer>();
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
         var collisionJob = new CollisionJob()
         {
+            lookUp = lookUp,
         }.Schedule(stepPhysicsWorld.Simulation, ref physicsWorld, Dependency);
 
         collisionJob.Complete();
