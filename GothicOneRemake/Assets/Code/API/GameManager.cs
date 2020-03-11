@@ -50,9 +50,12 @@ public class GameManager : MonoBehaviour
         // Adding buffer to entity
         //entityManager.AddBuffer<BufferCollisionDetails>(playerEntity);
 
+        var assetStore = GetComponent<BlobAssetStore>();
+        
+
+        var gOCSettings = 
+
         // Instantiate a prefab entity
-        entityManager.Instantiate(playerPrefab);
+        Entity entity =  GameObjectConversionUtility.ConvertGameObjectHierarchy(playerPrefab, GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, assetStore));
     }
-
-
 }
