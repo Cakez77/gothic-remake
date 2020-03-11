@@ -4,14 +4,14 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Scenes;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
     public SubScene scene;
 
     public GameObject playerPrefab;
 
     private EntityManager entityManager;
 
+    private Entity entity;
     // public SubScene Scene
     // {
     //     get
@@ -22,8 +22,7 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance;
 
-    void Awake()
-    {
+    void Awake() {
         // Singleton
         instance = this;
 
@@ -50,12 +49,16 @@ public class GameManager : MonoBehaviour
         // Adding buffer to entity
         //entityManager.AddBuffer<BufferCollisionDetails>(playerEntity);
 
-        var assetStore = GetComponent<BlobAssetStore>();
-        
+        BlobAssetStore assetStore = new BlobAssetStore();
 
-        var gOCSettings = 
+
+        var gOCSettings =
 
         // Instantiate a prefab entity
-        Entity entity =  GameObjectConversionUtility.ConvertGameObjectHierarchy(playerPrefab, GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, assetStore));
+        entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(playerPrefab, GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, assetStore));
+        entityManager.AddBuffer<BufferCollisionDetails>(entity);
+        var playerEntity = entityManager.Instantiate(entity);
+
+        print("The playerEntity: " + playerEntity);
     }
 }

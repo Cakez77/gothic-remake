@@ -14,30 +14,35 @@ public class HandleCollisionPointsSystem : SystemBase
             // Get the collisionPoint
             // TODO: Handle all collision Points later
             var playerColPointBuffer = colPointBuffers[playerEntity];
-            var colPoint = playerColPointBuffer[0].CollisionPoint;
 
-            // Calculate the vector from the position to the collision point
-            var posToCol = translation.Value - colPoint;
+            // If a buffer is present on the player
+            if(playerColPointBuffer.Length > 0) {
+                var colPoint = playerColPointBuffer[0].CollisionPoint;
 
-            // Measure the length of the vector 
-            // TODO: Might not be needed
-            var length = math.length(posToCol);
+                // Calculate the vector from the position to the collision point
+                var posToCol = translation.Value - colPoint;
 
-            // normalize the length to get the general direction
-            var nLength = math.normalizesafe(posToCol, 0);
+                // Measure the length of the vector 
+                // TODO: Might not be needed
+                var length = math.length(posToCol);
 
-            // stretch the normalized vector to match the radious of the capsule
-            var stretched = nLength * 0.5f;
+                // normalize the length to get the general direction
+                var nLength = math.normalizesafe(posToCol, 0);
 
-            // Calculate the penetration of the collision
-            var penetation = stretched - posToCol;
+                // stretch the normalized vector to match the radious of the capsule
+                var stretched = nLength * 0.5f;
 
-            //push the translation in the opposite direction of the penetration
-            //translation.value -= penetation;
-            // TODO: Just to visualize if the calculation is correct
-            Debug.DrawRay(colPoint, colPoint + penetation);
+                // Calculate the penetration of the collision
+                var penetration = posToCol - stretched;
 
-            // Clean up the buffer
-        }).Schedule();
+                //push the translation in the opposite direction of the penetration
+                //translation.value -= penetation;
+                // TODO: Just to visualize if the calculation is correct
+                Debug.DrawRay(colPoint, penetration, Color.yellow, 0.2f);
+
+                // Clean up the buffer
+            }
+
+        }).WithoutBurst().Run();
     }
 }
