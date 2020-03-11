@@ -10,41 +10,63 @@ the player input.
 */
 // [UpdateAfter(typeof(PlayerCollisionCheck))]
 [UpdateAfter(typeof(TransformSystemGroup))]
-public class PlayerMovementSystem : SystemBase {
+public class PlayerMovementSystem : SystemBase
+{
 
-    protected override void OnUpdate() {
+    protected override void OnUpdate()
+    {
 
         // Get the input from mouse and keyboard, stored in the Entity PlayerInput
         var playerInput = GetSingleton<PlayerInput>();
         var movementSpeed = 5f;
         // Get the buffer with collisions affecting the player
-        var buffer = GetBufferFromEntity<Float3Buffer>();
+        var buffers = GetBufferFromEntity<BufferCollisionDetails>();
 
         // Find the player Entity
-        Entities.WithAll<PlayerTag>().ForEach((Entity playerEntity, ref Translation translation, in LocalToWorld localToWorld, in Velocity velocity) => {
+        Entities.WithAll<PlayerTag>().ForEach((Entity playerEntity, ref Translation translation, in Rotation rotation, in LocalToWorld localToWorld, in Velocity velocity) =>
+        {
 
             // Calculate the target position for the palyer to move to using the suppied velocity and the 
             // LocalToWorld component
-            
+
             // Check if the player has anything in his collision buffer
-            var playerBuffer = buffer[playerEntity];
-            var float3PlayerBuffer = playerBuffer.Reinterpret<float3>();
+            var playerBuffer = buffers[playerEntity];
             float3 targetPosition;
-            if(float3PlayerBuffer.Length > 0)
+
+            if (playerBuffer.Length > 0)
             {
-                // var direction = math.normalizesafe(localToWorld.Forward,0);
-                var direction = float3PlayerBuffer[0];
-                targetPosition = new float3(0, velocity.Value.y, 0) + /*(math.cross(float3PlayerBuffer[0], localToWorld.Up) **/ velocity.Value.z * direction + localToWorld.Right * velocity.Value.x;
-                float3PlayerBuffer.RemoveAt(0);
-            }else{
+                // Calculate the direction to walk to based on the normal of the collision.
+                // TODO: Add multiple collisions, cross of all normals maybe
+                var direction = math.cross(playerBuffer[0].CollisionNormal, localToWorld.Up) * localToWorld.Forward * localToWorld.Right;
+
+                // Calculate the velocity
+                var mulXY = velocity.Value.x * velocity.Value.z;
+                var addXY = velocity.Value.x + velocity.Value.z;
+                var vel = mulXY != 0 ? mulXY : addXY;
+
+                // *Debug Info: Draw a ray pointing into the direction 
+                Debug.DrawRay(translation.Value, direction, Color.green, 0.2f);
+
+                // Set the target position based on velocity
+                targetPosition = vel * direction;
+
+                // Remove the buffer element from the player
+                playerBuffer.RemoveAt(0);
+            }
+            else
+            {
+                // calculate direction based on rotation
+                var direction = localToWorld.Forward;
+
+                // *Debug Info: Draw a ray pointing into the direction
+                Debug.DrawRay(translation.Value, direction, Color.red, 0.2f);
+
+                // Set the target position based on velocity
                 targetPosition = new float3(0, velocity.Value.y, 0) + (localToWorld.Forward * velocity.Value.z + localToWorld.Right * velocity.Value.x);
             }
-            
-            // Debug.Log("The velocity applied here: " +velocity.Value);
-            // Debug.Log("The new targetPosition: " + targetPosition);
 
             translation.Value += targetPosition * Time.DeltaTime * movementSpeed;
-            // TODO: Read up on movement
+
         }).WithoutBurst().Run();
     }
 }

@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
 {
     public SubScene scene;
 
+    public GameObject playerPrefab;
+
     private EntityManager entityManager;
 
     // public SubScene Scene
@@ -43,6 +45,13 @@ public class GameManager : MonoBehaviour
         entityManager.AddComponent(playerInput, typeof(PlayerInput));
         entityManager.SetComponentData(playerInput, new PlayerInput());
         entityManager.SetName(playerInput, "Input");
+
+
+        // Adding buffer to entity
+        //entityManager.AddBuffer<BufferCollisionDetails>(playerEntity);
+
+        // Instantiate a prefab entity
+        entityManager.Instantiate(playerPrefab);
     }
 
 

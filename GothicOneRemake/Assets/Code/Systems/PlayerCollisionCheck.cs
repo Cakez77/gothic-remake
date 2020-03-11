@@ -32,35 +32,36 @@ public class PlayerCollisionCheck : SystemBase
 
     private struct CollisionJob : ICollisionEventsJob
     {
-        public BufferFromEntity<Float3Buffer> lookUp;
+        public BufferFromEntity<BufferCollisionDetails> colBuffers;
+        public PhysicsWorld physicsWorld;
 
         // A Rigidbody colided with something
         public void Execute(CollisionEvent collisionEvent)
         {
+            // Collision occurred!!
+            // TODO: Check which entity has a buffer, what if both have a buffer
+            // Add the normal of the collision to the buffer of the body colliding
+            // TODO: ADD a check for physics body maybe
+            var playerBuffer = colBuffers[collisionEvent.Entities.EntityA];
 
-            // Addiere den Index der Entity mit der der Player Kollidiert ist zum int buffer des players hinzu.
-            var buffer = lookUp[collisionEvent.Entities.EntityA];
-            var float3Buffer = buffer.Reinterpret<float3>();
-
-            // The normal of the collision Event
-            var normal = math.normalizesafe(collisionEvent.Normal, 0);
-
-            // Debugging the normal vector
-            // Debug.Log("The normal vector: " + normal);
-
-            float3Buffer.Add(collisionEvent.Normal);
-            // Debug.Log("Collision! Entity A: " + collisionEvent.Entities.EntityA + " and Entity B: " + collisionEvent.Entities.EntityB);
+            // Add a buffer element containing the details about the collision to the 
+            // entity with the buffer
+            playerBuffer.Add(new BufferCollisionDetails{
+                CollisionNormal = collisionEvent.Normal,
+                CollisionPoint = collisionEvent.CalculateDetails(ref physicsWorld).AverageContactPointPosition
+            });
         }
     }
 
     protected override void OnUpdate()
     {
 
-        var lookUp = GetBufferFromEntity<Float3Buffer>();
+        var colBuffers = GetBufferFromEntity<BufferCollisionDetails>();
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
         var collisionJob = new CollisionJob()
         {
-            lookUp = lookUp,
+            colBuffers = colBuffers,
+            physicsWorld = physicsWorld
         }.Schedule(stepPhysicsWorld.Simulation, ref physicsWorld, Dependency);
 
         collisionJob.Complete();
