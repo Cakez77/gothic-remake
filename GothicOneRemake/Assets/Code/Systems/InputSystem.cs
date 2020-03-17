@@ -18,20 +18,18 @@ public class InputSystem : SystemBase {
         var keyboard = Keyboard.current;
         var mouse = Mouse.current;
 
-        var x = (keyboard.aKey.isPressed ? -1 : 0) + (keyboard.dKey.isPressed ? 1 : 0);
-        var y = (keyboard.sKey.isPressed ? -1 : 0) + (keyboard.wKey.isPressed ? 1 : 0);
+        var x = (keyboard.wKey.isPressed ? 1 : 0) + (keyboard.sKey.isPressed ? -1 : 0);
+        var z = (keyboard.aKey.isPressed ? 1 : 0) + (keyboard.dKey.isPressed ? -1 : 0);
 
         var space = (keyboard.spaceKey.isPressed ? 1 : 0);
 
         // TODO: Find a InputSystem replacement for this
         var MouseInput = new float2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
-        // TODO: Read up on the new InputSystem and maybe use that.
-        var KeyInput = new float2(x, y);
+
 
         Entities.ForEach((ref PlayerInput playerInput) => {
-            playerInput.Space = space;
             playerInput.MouseMovement = MouseInput;
-            playerInput.KeyMovement = KeyInput;
+            playerInput.InputVector = new float3(x, space, z);
         }).ScheduleParallel();
         
 

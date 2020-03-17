@@ -3,8 +3,10 @@
     "",
     "\\GothicOneRemake",
     "\\GothicOneRemake\\Assets",
-    "\\GothicOneRemake\\Assets\\Scripts"
+    "\\GothicOneRemake\\Assets\\Code",
+    "\\GothicOneRemake\\Assets\\Code\\Components",
+    "\\GothicOneRemake\\Assets\\Code\\Systems"
   ],
-  "SelectedNode": "\\GothicOneRemake\\Assets\\Scripts\\PlayerMovement.cs",
+  "SelectedNode": "\\GothicOneRemake\\Assets\\Code\\Systems\\PlayerCollisionCheck.cs",
   "PreviewInSolutionExplorer": false
 }
