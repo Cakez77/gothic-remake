@@ -78,12 +78,13 @@ public class VelocitySystem : SystemBase {
 
             Debug.DrawRay(translation.Value, direction, Color.green, 0.1f);
 
-            var colPos = SphereCast(translation.Value, translation.Value + direction, 0.5f, rotation.Value);
+            // TODO: Put the whole SphereCast into the movement System or create a new system 
+            // to handle collisions and calculate the correct velocity
+            var colPos = SphereCast(translation.Value, math.normalizesafe(translation.Value + direction, 0) * Time.DeltaTime, 0.5f);
 
             if (math.length(colPos) > 0) {
                 // TODO: Only here for debug reasons
-                direction.x = colPos.x;
-                direction.z = colPos.z;
+                direction -= colPos;
                 //Debug.Log("Rewrite direction: " + colPos);
                 //direction = colPos;
             }
@@ -94,10 +95,7 @@ public class VelocitySystem : SystemBase {
     }
 
 
-    public unsafe float3 SphereCast(float3 RayFrom, float3 RayTo, float radius, quaternion rotation) {
-
-        //TODO: Only here for debug reasons
-        Debug.Log("Casting Shere into direction: " + RayTo);
+    public unsafe float3 SphereCast(float3 RayFrom, float3 RayTo, float radius) {
 
         var physicsWorldSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystem<BuildPhysicsWorld>();
         var collisionWorld = physicsWorldSystem.PhysicsWorld.CollisionWorld;
@@ -108,12 +106,11 @@ public class VelocitySystem : SystemBase {
             GroupIndex = 0
         };
 
-        SphereGeometry sphereGeometry = new SphereGeometry() {
-            Center = float3.zero,
+        CapsuleGeometry sphereGeometry = new CapsuleGeometry() {
             Radius = radius
         };
 
-        BlobAssetReference<Unity.Physics.Collider> sphereCollider = Unity.Physics.SphereCollider.Create(sphereGeometry, filter);
+        BlobAssetReference<Unity.Physics.Collider> sphereCollider = Unity.Physics.CapsuleCollider.Create(sphereGeometry, filter);
 
         ColliderCastInput input = new ColliderCastInput() {
             Collider = (Unity.Physics.Collider*) sphereCollider.GetUnsafePtr(),
@@ -126,7 +123,12 @@ public class VelocitySystem : SystemBase {
 
         bool haveHit = collisionWorld.CastCollider(input, out hit);
         if (haveHit) {
-            return hit.Position;
+            var penetrationPoint = RayTo - hit.SurfaceNormal * 0.5f;
+            var penetration = hit.Position - penetrationPoint;
+
+            var moveOut = hit.SurfaceNormal * math.dot(penetration, hit.SurfaceNormal);
+
+            return moveOut;
         }
 
         // Return null if we dont hit anything

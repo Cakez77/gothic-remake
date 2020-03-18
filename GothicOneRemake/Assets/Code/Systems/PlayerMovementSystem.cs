@@ -18,7 +18,7 @@ public class PlayerMovementSystem : SystemBase
 
         // Get the input from mouse and keyboard, stored in the Entity PlayerInput
         var playerInput = GetSingleton<PlayerInput>();
-        var movementSpeed = 5f;
+        var movementSpeed = 1f;
         var dTime = Time.DeltaTime;
         // Get the buffer with collisions affecting the player
         var buffers = GetBufferFromEntity<BufferCollisionDetails>();
