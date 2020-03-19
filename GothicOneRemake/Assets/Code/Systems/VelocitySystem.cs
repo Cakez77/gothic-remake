@@ -79,14 +79,19 @@ public class VelocitySystem : SystemBase {
 
             // TODO: Put the whole SphereCast into the movement System or create a new system 
             // to handle collisions and calculate the correct velocity
-            var normal = SphereCast(translation.Value, translation.Value + math.normalizesafe(direction,0), 0.5f, math.normalizesafe(direction, 0));
+
+            // TODO: Only here for debug reasons
+            var debugVectors = new float3[2]{ translation.Value, math.normalizesafe(direction, 0) };
+
+            //TODO: Put the radius in a central file that holds important data, maybe split that file into many files
+            var radius = 0.5f;
+
+            var pushOut = SphereCast(translation.Value + math.normalizesafe(direction,0), radius, debugVectors);
 
 
-            if (math.length(normal) > 0) {
+            if (math.length(pushOut) > 0) {
                 // TODO: Only here for debug reasons
-                var pushOut = normal * direction;
-                Debug.Log("The push out Vector: " + pushOut + " and Velocity: " + direction);
-                direction -= pushOut;
+                direction += pushOut;
                 //Debug.Log("Rewrite direction: " + colPos);
                 //direction = colPos;
             }
@@ -97,10 +102,16 @@ public class VelocitySystem : SystemBase {
     }
 
 
-    public unsafe float3 SphereCast(float3 RayFrom, float3 RayTo, float radius, float3 debugRayDirection) {
+
+    /*
+     * Function to cast a Sphere collider at a direction to check for collision.
+     * Right now the collider will only check for collisions with static objects.
+     * Those static object are set to be on layer 2.
+     */
+    public unsafe float3 SphereCast(float3 RayPos, float radius, float3[] debugVectors) {
 
 
-        Debug.DrawRay(RayFrom, debugRayDirection, Color.green);
+        Debug.DrawRay(debugVectors[0], debugVectors[1], Color.green);
 
         var physicsWorldSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystem<BuildPhysicsWorld>();
         var collisionWorld = physicsWorldSystem.PhysicsWorld.CollisionWorld;
@@ -120,8 +131,8 @@ public class VelocitySystem : SystemBase {
         ColliderCastInput input = new ColliderCastInput() {
             Collider = (Unity.Physics.Collider*) sphereCollider.GetUnsafePtr(),
             Orientation = quaternion.identity,
-            Start = RayFrom,
-            End = RayTo
+            Start = RayPos,
+            End = RayPos
         };
 
         ColliderCastHit hit = new ColliderCastHit();
@@ -129,10 +140,17 @@ public class VelocitySystem : SystemBase {
         bool haveHit = collisionWorld.CastCollider(input, out hit);
         if (haveHit) {
 
-            Debug.DrawRay(hit.Position, hit.SurfaceNormal, Color.red);
-            Debug.DrawRay(hit.Position, math.dot(RayTo - hit.Position, hit.SurfaceNormal) * hit.SurfaceNormal);
+            // Calculate the penetration of the collision
+            var penetration = (math.normalizesafe(hit.Position - RayPos, 0) * radius) - hit.Position;
 
-            return -hit.SurfaceNormal;
+
+            Debug.DrawRay(hit.Position, RayPos-hit.Position, Color.red);
+
+            // Project penetration onto the normal of the collision
+            var pushOutForce = math.dot(penetration, hit.SurfaceNormal);
+
+            // Calculate the vector to correct the movement in the opposite direction of the penetration
+            var pushOutVector = hit.SurfaceNormal * pushOutForce;
 
             //var penetrationPoint = RayTo - hit.SurfaceNormal * 0.5f;
             //var penetration = hit.Position - penetrationPoint;
