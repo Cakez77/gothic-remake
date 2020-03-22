@@ -34,6 +34,9 @@ public class PlayerMovementSystem : SystemBase {
             var moveToPos = velocity.Value * movementSpeed * dTime;
 
             var normal = SphereCast(translation.Value, translation.Value + moveToPos, radius);
+            var yVector = new float3(0, 1, 0);
+
+            var groundNormal = RayCast(translation.Value, translation.Value + moveToPos * yVector);
 
 
             if (math.length(normal) > 0) {
@@ -86,6 +89,39 @@ public class PlayerMovementSystem : SystemBase {
         }
 
         // Return null if we dont hit anything
+        return float3.zero;
+    }
+
+    /*
+    * Function to cast a Sphere collider at a direction to check for collision.
+    * Right now the collider will only check for collisions with static objects.
+    * Those static object are set to be on layer 2.
+    */
+    public float3 RayCast(float3 RayFrom, float3 RayTo) {
+
+        var physicsWorldSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystem<BuildPhysicsWorld>();
+        var collisionWorld = physicsWorldSystem.PhysicsWorld.CollisionWorld;
+
+        RaycastInput raycastInput = new RaycastInput {
+            Start = RayFrom,
+            End = RayTo,
+            Filter = new CollisionFilter {
+                BelongsTo = 1u, // Belongs to Layer 0 (Player)
+                CollidesWith = 1u << 2, // Collides with Layer 2 (Static Objects)
+                GroupIndex = 0
+            }
+        };
+
+        Unity.Physics.RaycastHit hit = new Unity.Physics.RaycastHit();
+
+        if (collisionWorld.CastRay(raycastInput, out hit)) {
+            //We should be grounded so
+
+            Debug.Log("We hit something with the raycast ");
+
+            Debug.DrawRay(hit.Position, hit.SurfaceNormal, Color.red);
+        }
+
         return float3.zero;
     }
 }

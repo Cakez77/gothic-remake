@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour {
 
         Entity optionsEntity = entityManager.CreateEntity(options);
         entityManager.SetComponentData(optionsEntity, new MouseSensitivity { Value = 0.5f });
+        entityManager.SetComponentData(optionsEntity, new Gravity { Value = -1.2f });
         entityManager.SetName(optionsEntity, "Options");
 
 
@@ -52,9 +53,6 @@ public class GameManager : MonoBehaviour {
 
         // Adding buffer to entity
         entityManager.AddBuffer<BufferCollisionDetails>(entity);
-        //var playerEntity = entityManager.Instantiate(entity);
-        //print("The playerEntity: " + playerEntity);
-
         entityManager.SetName(entityManager.Instantiate(entity), "Player");
     }
 }

@@ -10,19 +10,15 @@ public class SceneLoadingSystem : SystemBase
     protected override void OnCreate()
     {
         sceneSystem = World.GetOrCreateSystem<SceneSystem>();
+    }
 
+    protected override void OnStartRunning() {
+        base.OnStartRunning();
+
+        sceneSystem.LoadSceneAsync(GameManager.instance.scene.SceneGUID);
     }
 
     protected override void OnUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            sceneSystem.LoadSceneAsync(GameManager.instance.scene.SceneGUID);
-        }
-
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            sceneSystem.UnloadScene(GameManager.instance.scene.SceneGUID);
-        }
     }
 }
