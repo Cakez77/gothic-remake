@@ -4,6 +4,7 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Physics.Systems;
 using UnityEngine;
+using Unity.Collections;
 
 
 /*
@@ -11,11 +12,13 @@ This class updates the players rotation and position based on
 the player input.
 */
 // [UpdateAfter(typeof(PlayerCollisionCheck))]
+[DisableAutoCreation]
 [UpdateAfter(typeof(TransformSystemGroup))]
 public class PlayerMovementSystem : SystemBase {
 
-    protected override void OnUpdate() {
 
+    protected override void OnUpdate() {
+        
         // Get the input from mouse and keyboard, stored in the Entity PlayerInput
         var playerInput = GetSingleton<PlayerInput>();
         var movementSpeed = 5f;
@@ -33,20 +36,35 @@ public class PlayerMovementSystem : SystemBase {
 
             var moveToPos = velocity.Value * movementSpeed * dTime;
 
-            var normal = SphereCast(translation.Value, translation.Value + moveToPos, radius);
-            var yVector = new float3(0, 1, 0);
+            var colliderHits = SphereCast(translation.Value, translation.Value + moveToPos, radius);
+            var upVector = new float3(0f, 1f, 0f);
+            var yDirection = upVector * moveToPos;
+            var rayDirection = math.normalizesafe(yDirection * upVector, 0);
 
-            var groundNormal = RayCast(translation.Value, translation.Value + moveToPos * yVector);
+            var groundNormal = RayCast(translation.Value, translation.Value + rayDirection);
 
 
-            if (math.length(normal) > 0) {
-                var pushOut = math.dot(moveToPos, normal) * normal;
-                moveToPos -= pushOut * 0.99f;
+            if (colliderHits.Length > 0) {
+                var addedNormal = float3.zero;
+                var pushOut = float3.zero;
+                for (int i = 0; i < colliderHits.Length; i++) {
+                    addedNormal += colliderHits[i].SurfaceNormal;;
+                }
+                Debug.DrawRay(translation.Value, addedNormal, Color.blue);
+
+                pushOut += math.dot(moveToPos, addedNormal) * addedNormal;
+                moveToPos -= pushOut;
+            }
+
+            if (math.length(groundNormal) > 0) {
+                var pushOut = math.dot(moveToPos, groundNormal) * groundNormal;
+                moveToPos -= pushOut;
             }
 
             translation.Value += moveToPos;
 
         }).WithoutBurst().Run();
+        
     }
 
     /*
@@ -54,9 +72,7 @@ public class PlayerMovementSystem : SystemBase {
         * Right now the collider will only check for collisions with static objects.
         * Those static object are set to be on layer 2.
         */
-    public unsafe float3 SphereCast(float3 RayFrom, float3 RayTo, float radius) {
-
-        Debug.DrawRay(RayFrom, RayTo - RayFrom, Color.green);
+    public unsafe NativeList<ColliderCastHit> SphereCast(float3 RayFrom, float3 RayTo, float radius) {
 
         var physicsWorldSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystem<BuildPhysicsWorld>();
         var collisionWorld = physicsWorldSystem.PhysicsWorld.CollisionWorld;
@@ -81,15 +97,15 @@ public class PlayerMovementSystem : SystemBase {
             End = RayTo
         };
 
-        ColliderCastHit hit = new ColliderCastHit();
+        NativeList<ColliderCastHit> hits = new NativeList<ColliderCastHit>(3, Allocator.Temp);
 
-        bool haveHit = collisionWorld.CastCollider(input, out hit);
+        bool haveHit = collisionWorld.CastCollider(input, ref hits);
         if (haveHit) {
-            return hit.SurfaceNormal;
+            return hits;
         }
 
         // Return null if we dont hit anything
-        return float3.zero;
+        return hits;
     }
 
     /*
@@ -98,6 +114,8 @@ public class PlayerMovementSystem : SystemBase {
     * Those static object are set to be on layer 2.
     */
     public float3 RayCast(float3 RayFrom, float3 RayTo) {
+
+        Debug.DrawRay(RayFrom, RayTo - RayFrom, Color.red);
 
         var physicsWorldSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystem<BuildPhysicsWorld>();
         var collisionWorld = physicsWorldSystem.PhysicsWorld.CollisionWorld;
@@ -115,11 +133,9 @@ public class PlayerMovementSystem : SystemBase {
         Unity.Physics.RaycastHit hit = new Unity.Physics.RaycastHit();
 
         if (collisionWorld.CastRay(raycastInput, out hit)) {
+
             //We should be grounded so
-
-            Debug.Log("We hit something with the raycast ");
-
-            Debug.DrawRay(hit.Position, hit.SurfaceNormal, Color.red);
+            return hit.SurfaceNormal;
         }
 
         return float3.zero;

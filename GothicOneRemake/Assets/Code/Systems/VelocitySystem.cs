@@ -10,10 +10,12 @@ This system calculates the velocity for every entity in the game. Included
 in the velocity is gravity and player input.
 */
 // TODO: Look into TranslationSystemGroup and if you need to update after it
+[DisableAutoCreation]
 [UpdateBefore(typeof(PlayerMovementSystem))]
 public class VelocitySystem : SystemBase {
 
     protected override void OnUpdate() {
+        
         // TODO: How about two queries merged into one big query that has all Entities with the
         // TODO: Velocity and the PlayerInput component??
         var playerInput = GetSingleton<PlayerInput>();
@@ -31,11 +33,13 @@ public class VelocitySystem : SystemBase {
             // Set the velocity and taking into account the jump height
             var input = playerInput.InputVector;
             var direction = localToWorld.Forward * input.x
-                            + localToWorld.Up * (jumpHeight * input.y + gravity.Value)
                             + -localToWorld.Right * input.z;
 
             velocity.Value = math.normalizesafe(direction, 0);
 
+            velocity.Value += localToWorld.Up * (jumpHeight * input.y + gravity.Value);
+
         }).WithoutBurst().Run();
+    
     }
 }
