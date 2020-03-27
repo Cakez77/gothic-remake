@@ -12,6 +12,8 @@ public class AlternateMovementSystem : SystemBase {
         var movementSpeed = 5f;
 
         Entities.WithAll<PlayerTag>().ForEach((ref PhysicsVelocity velocity, in LocalToWorld localToWorld) => {
+            velocity.Angular.y = quaternion.RotateY(math.atan2(inputX, inputY)).value.y;
+
             velocity.Linear = (localToWorld.Forward * inputX
                                 + localToWorld.Right * inputY) * movementSpeed;
                         

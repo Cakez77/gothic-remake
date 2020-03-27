@@ -27,10 +27,10 @@ public class CameraFollowTargetSystem : SystemBase
         // Get the player position and direction, and change his rotation
         Entities.WithAll<CameraTargetTag>().ForEach((ref Rotation rotation, ref Translation translation, in LocalToWorld localToWorld) =>
         {
-            // Rotate the player along the Y-Axis
-            var playerRotation = rotationComponents[playerEntity];
-            playerRotation.Value = quaternion.RotateY(pitchYaw.Value.x);
-            rotationComponents[playerEntity] = playerRotation;
+            //// Rotate the player along the Y-Axis
+            //var playerRotation = rotationComponents[playerEntity];
+            //playerRotation.Value = quaternion.RotateY(pitchYaw.Value.x);
+            //rotationComponents[playerEntity] = playerRotation;
 
             // Rotate the camera around the target
             // TODO: Enable first person camera upon pressing a key or zooming with the mouse
