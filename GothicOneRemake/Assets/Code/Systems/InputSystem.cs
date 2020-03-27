@@ -19,7 +19,7 @@ public class InputSystem : SystemBase {
         var mouse = Mouse.current;
 
         var x = (keyboard.wKey.isPressed ? 1 : 0) + (keyboard.sKey.isPressed ? -1 : 0);
-        var z = (keyboard.aKey.isPressed ? 1 : 0) + (keyboard.dKey.isPressed ? -1 : 0);
+        var z = (keyboard.aKey.isPressed ? -1 : 0) + (keyboard.dKey.isPressed ? 1 : 0);
 
         var space = (keyboard.spaceKey.isPressed ? 1 : 0);
 
