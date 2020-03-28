@@ -4,6 +4,7 @@ using Unity.Physics.Systems;
 using Unity.Mathematics;
 using UnityEngine;
 
+[DisableAutoCreation]
 public class PlayerJumpSystem : SystemBase
 {
 

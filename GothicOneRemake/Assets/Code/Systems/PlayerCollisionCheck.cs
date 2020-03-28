@@ -9,6 +9,7 @@ using Unity.Transforms;
 using Unity.Collections;
 
 
+[DisableAutoCreation]
 [UpdateBefore(typeof(PlayerMovementSystem))]
 [UpdateAfter(typeof(VelocitySystem))]
 [UpdateInGroup(typeof(SimulationSystemGroup))]

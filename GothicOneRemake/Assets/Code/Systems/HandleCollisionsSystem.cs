@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Physics;
 using UnityEngine;
 
+[DisableAutoCreation]
 public class HandleCollisionsSystem : SystemBase {
     protected override void OnUpdate() {
 

@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 
+[DisableAutoCreation]
 public class FollowPlayerSystem : SystemBase
 {
     protected override void OnUpdate()

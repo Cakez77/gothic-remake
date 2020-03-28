@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Scenes;
 using UnityEngine;
 
+[DisableAutoCreation]
 public class SceneLoadingSystem : SystemBase
 {
 

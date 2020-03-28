@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[DisableAutoCreation]
 //[UpdateAfter(typeof(TRSToLocalToWorldSystem))]
 public class RotationSystem : SystemBase {
     private float rotationAcc;

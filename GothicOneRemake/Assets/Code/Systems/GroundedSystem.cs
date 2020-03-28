@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+[DisableAutoCreation]
 public class GroundedSystem : SystemBase {
     protected override void OnUpdate(){
     //     var normVector = new float3(1, -1, 1);

@@ -38,6 +38,9 @@ public class CameraFollowTargetSystem : SystemBase
 
             // Accumulate rotation
             pitchYaw.Value += playerInput.MouseMovement * mouseSensitivity.Value;
+            // Clamp the Yaw
+            pitchYaw.Value.y = math.clamp(pitchYaw.Value.y, -0.65f, 0.65f);
+
             SetSingleton<PitchYaw>(pitchYaw);
 
             // Rotate the camera target along the X and Y-Axis
