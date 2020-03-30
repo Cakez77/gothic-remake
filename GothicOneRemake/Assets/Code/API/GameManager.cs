@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour {
     private EntityManager entityManager;
 
     private Entity playerEntity;
+
+    private BlobAssetStore assetStore;
     // public SubScene Scene
     // {
     //     get
@@ -47,7 +49,7 @@ public class GameManager : MonoBehaviour {
         entityManager.SetComponentData(playerInput, new PlayerInput());
         entityManager.SetName(playerInput, "Input");
 
-        BlobAssetStore assetStore = new BlobAssetStore();
+        assetStore = new BlobAssetStore();
 
         // Instantiate a prefab entity
         playerEntity = GameObjectConversionUtility.ConvertGameObjectHierarchy(playerPrefab, GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, assetStore));
@@ -56,11 +58,13 @@ public class GameManager : MonoBehaviour {
         entityManager.AddBuffer<BufferCollisionDetails>(playerEntity);
         var entity = entityManager.Instantiate(playerEntity);
 
+        
+
         // Trying to create a limited joint to limit rotation along certain axes
 
         // Creating Constraints
         var angularConstraint = new Constraint {
-            ConstrainedAxes = new bool3(true, true, true),
+            ConstrainedAxes = new bool3(true, false, true),
             Type = ConstraintType.Angular,
             Min = 0,
             Max = 0,
@@ -98,6 +102,9 @@ public class GameManager : MonoBehaviour {
 
         // Add the component data to the jointEntity
         entityManager.AddComponentData(jointEntity, componentData);
+    }
 
+    void OnDestroy() {
+        assetStore.Dispose();
     }
 }
