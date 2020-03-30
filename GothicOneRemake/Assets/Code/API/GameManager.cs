@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour {
 
         // Creating Constraints
         var angularConstraint = new Constraint {
-            ConstrainedAxes = new bool3(true, false, true),
+            ConstrainedAxes = new bool3(true, true, true),
             Type = ConstraintType.Angular,
             Min = 0,
             Max = 0,
