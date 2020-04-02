@@ -7,7 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 
-[DisableAutoCreation]
+
 public class CollistionSystem : SystemBase {
 
     private BuildPhysicsWorld buildPhysicsWorld;
@@ -51,9 +51,8 @@ public class CollistionSystem : SystemBase {
             // -----------------------------------------------------------------------------------------
 
             float CalculateAngle(float3 normal, float3 up) {
-                var angle = 0f;
 
-                angle = Vector3.Angle(up, normal);
+                var angle = Vector3.Angle(up, normal);
 
                 return angle;
             }

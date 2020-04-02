@@ -21,6 +21,8 @@ public class AlternateMovementSystem : SystemBase {
             // Only change the rotation if input is being sent
             var magnitude = math.length(input);
 
+            Debug.Log(quaternion.LookRotation(new float3(0f, 0f,0f), localToWorld.Up));
+
             // TODO: This should be in it's own system? 
             // Only do stuff if there is input
             if (magnitude > 0) {

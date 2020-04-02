@@ -40,7 +40,6 @@ public class GameManager : MonoBehaviour {
 
         Entity optionsEntity = entityManager.CreateEntity(options);
         entityManager.SetComponentData(optionsEntity, new MouseSensitivity { Value = 0.5f });
-        entityManager.SetComponentData(optionsEntity, new Gravity { Value = -1.2f });
         entityManager.SetName(optionsEntity, "Options");
 
 
@@ -58,9 +57,9 @@ public class GameManager : MonoBehaviour {
         entityManager.AddBuffer<BufferCollisionDetails>(playerEntity);
         entityManager.AddComponent<CollisionAngle>(playerEntity);
         entityManager.AddComponent<BaseSpeed>(playerEntity);
-        entityManager.SetComponentData(playerEntity, new BaseSpeed { Value = 15f });
+        entityManager.SetComponentData(playerEntity, new BaseSpeed { Value = 8f });
         entityManager.AddComponent<JumpHeight>(playerEntity);
-        entityManager.SetComponentData(playerEntity, new JumpHeight { Value = 5f });
+        entityManager.SetComponentData(playerEntity, new JumpHeight { Value = 15f });
 
         var entity = entityManager.Instantiate(playerEntity);
 
