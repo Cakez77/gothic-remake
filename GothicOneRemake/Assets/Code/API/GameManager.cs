@@ -56,6 +56,12 @@ public class GameManager : MonoBehaviour {
 
         // Adding buffer to entity
         entityManager.AddBuffer<BufferCollisionDetails>(playerEntity);
+        entityManager.AddComponent<CollisionAngle>(playerEntity);
+        entityManager.AddComponent<BaseSpeed>(playerEntity);
+        entityManager.SetComponentData(playerEntity, new BaseSpeed { Value = 15f });
+        entityManager.AddComponent<JumpHeight>(playerEntity);
+        entityManager.SetComponentData(playerEntity, new JumpHeight { Value = 5f });
+
         var entity = entityManager.Instantiate(playerEntity);
 
         

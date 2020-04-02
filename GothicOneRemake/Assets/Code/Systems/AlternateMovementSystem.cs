@@ -4,6 +4,7 @@ using Unity.Physics;
 using UnityEngine;
 using Unity.Transforms;
 
+[DisableAutoCreation]
 [UpdateAfter(typeof(TransformSystemGroup))]
 public class AlternateMovementSystem : SystemBase {
     private bool waitForRotation = false;
@@ -40,9 +41,12 @@ public class AlternateMovementSystem : SystemBase {
                 var direction = getNormDirection(cameraForward, cameraRight, input);
                 Debug.DrawRay(localToWorld.Position, direction, Color.red);
                 var angle = Vector3.Angle(playerForward, direction);
+                Debug.Log("Angle: " + angle);
+                
 
                 // Direction in which to rotate
-                var targetRotation = quaternion.RotateY(result+ math.radians(cameraTransform.eulerAngles.y));
+                //var targetRotation = quaternion.RotateY(result+ math.radians(cameraTransform.eulerAngles.y));
+                var targetRotation = quaternion.LookRotation(direction, localToWorld.Up);
 
                 // Set something that 
                 if (angle > 150) {

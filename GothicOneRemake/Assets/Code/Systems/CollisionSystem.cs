@@ -1,9 +1,13 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 using Unity.Physics;
 using Unity.Physics.Systems;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
+using Unity.Collections;
 
+[DisableAutoCreation]
 public class CollistionSystem : SystemBase {
 
     private BuildPhysicsWorld buildPhysicsWorld;
@@ -17,52 +21,59 @@ public class CollistionSystem : SystemBase {
     }
 
 
-
+    
     // This job handles all collisions within the world
     private struct CollisionJob : ICollisionEventsJob {
 
-        public BufferFromEntity<BufferCollisionDetails> collBuffers;
+        public ComponentDataFromEntity<CollisionAngle> colAngles;
+        [ReadOnly] public ComponentDataFromEntity<LocalToWorld> ltw;
 
         public void Execute(CollisionEvent collisionEvent) {
 
             // Collision occurred
             var collEntities = collisionEvent.Entities;
             var colNormal = collisionEvent.Normal;
+            var entityA = collEntities.EntityA;
+            var entityB = collEntities.EntityB;
 
-            // Update the buffers for each entity, if they have a buffer compoonent
-            CheckAndAddBufferToEntity(collBuffers, collEntities.EntityA, colNormal);
-            CheckAndAddBufferToEntity(collBuffers, collEntities.EntityB, colNormal);
+            if(colAngles.Exists(entityA)){
+                setColAngle(entityA, colAngles, ltw[entityA].Up);
+            }
+
+            if (colAngles.Exists(entityB)) {
+                setColAngle(entityB, colAngles, ltw[entityB].Up);
+            }
 
 
 
+            //------------------------------------------------------------------------------------------
+            // Helper Functions
+            // -----------------------------------------------------------------------------------------
 
-            /**
-            * Function that checks if an entity has a buffer component of type BufferCollisionDetails. 
-            * If the entity has such a component it will then be added to it.
-            * 
-            */
-            void CheckAndAddBufferToEntity(BufferFromEntity<BufferCollisionDetails> colBuffers, Entity entity, float3 normal) {
-                // Check if the entity has a buffer
-                if (colBuffers.Exists(entity)) {
-                    var buffer = colBuffers[entity];
+            float CalculateAngle(float3 normal, float3 up) {
+                var angle = 0f;
 
-                    // Add a buffer element to the entity
-                    buffer.Add(new BufferCollisionDetails {
-                        CollisionNormal = normal,
-                        // TODO: Might be removed in the future or be replaced by the layer ID
-                        CollisionPoint = float3.zero
-                    });
-                }
+                angle = Vector3.Angle(up, normal);
+
+                return angle;
+            }
+
+            void setColAngle(Entity entity, ComponentDataFromEntity<CollisionAngle> colAngles, float3 ltwUp) {
+                var angle = colAngles[collEntities.EntityA];
+                angle.Value = CalculateAngle(colNormal, ltwUp);
+                colAngles[collEntities.EntityA] = angle;
             }
         }
     }
 
     protected override void OnUpdate() {
 
-        var collBuffers = GetBufferFromEntity<BufferCollisionDetails>();
+        var colAngles = GetComponentDataFromEntity<CollisionAngle>(false);
+        var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
 
         var collisionJob = new CollisionJob() {
-            collBuffers = collBuffers,
+            colAngles = colAngles,
+            ltw = ltw
         }.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, Dependency);
 
         collisionJob.Complete();
