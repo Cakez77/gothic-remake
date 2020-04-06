@@ -6,64 +6,56 @@ using Unity.Scenes;
 using Unity.Physics;
 
 public class GameManager : MonoBehaviour {
+    // TODO: Implement a proper SubScene System to load on demand
     public SubScene scene;
-
     public GameObject playerPrefab;
-
     private EntityManager entityManager;
-
-    private Entity playerEntity;
-
     private BlobAssetStore assetStore;
-    // public SubScene Scene
-    // {
-    //     get
-    //     {
-    //         return scene;
-    //     }
-    // }
 
-    public static GameManager instance;
+    private EntityArchetype aiArchetype;
+
+    void Start() {
+
+        CreateOptions();
+
+        CreatePlayer();
+    }
 
     void Awake() {
-        // Singleton
-        instance = this;
-
-        // Get the EntityManager to instantiate Entities
         entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        assetStore = new BlobAssetStore();
+    }
 
+    void OnDestroy() {
+        assetStore.Dispose();
+    }
+
+
+    //=========================================================================================
+    //                  Helper functions
+    //=========================================================================================
+
+    private void CreateOptions() {
+        // Create the options Archetype
         EntityArchetype options = entityManager.CreateArchetype(
             typeof(MouseSensitivity),
-            typeof(PitchYaw),
-            typeof(Gravity)
+            typeof(RotationSmothnes)
         );
 
+        // TODO: Read up on default values for components
+        // Create the options entity and set default values
         Entity optionsEntity = entityManager.CreateEntity(options);
         entityManager.SetComponentData(optionsEntity, new MouseSensitivity { Value = 0.5f });
+        entityManager.SetComponentData(optionsEntity, new RotationSmothnes { Value = 1f });
         entityManager.SetName(optionsEntity, "Options");
+    }
 
-
-        Entity playerInput = entityManager.CreateEntity();
-        entityManager.AddComponent(playerInput, typeof(PlayerInput));
-        entityManager.SetComponentData(playerInput, new PlayerInput());
-        entityManager.SetName(playerInput, "Input");
-
-        assetStore = new BlobAssetStore();
-
+    private void CreatePlayer() {
         // Instantiate a prefab entity
-        playerEntity = GameObjectConversionUtility.ConvertGameObjectHierarchy(playerPrefab, GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, assetStore));
+        var prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(playerPrefab, GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, assetStore));
 
-        // Adding buffer to entity
-        entityManager.AddBuffer<BufferCollisionDetails>(playerEntity);
-        entityManager.AddComponent<CollisionAngle>(playerEntity);
-        entityManager.AddComponent<BaseSpeed>(playerEntity);
-        entityManager.SetComponentData(playerEntity, new BaseSpeed { Value = 8f });
-        entityManager.AddComponent<JumpHeight>(playerEntity);
-        entityManager.SetComponentData(playerEntity, new JumpHeight { Value = 15f });
-
-        var entity = entityManager.Instantiate(playerEntity);
-
-        
+        var player = entityManager.Instantiate(prefab);
+        entityManager.SetName(player, "Player");
 
         // Trying to create a limited joint to limit rotation along certain axes
 
@@ -90,7 +82,7 @@ public class GameManager : MonoBehaviour {
         // along certain Axes based on the above defined constraints.
         var componentData = new PhysicsJoint {
             JointData = jointData,
-            EntityA = entity,
+            EntityA = player,
             EntityB = Entity.Null,
             EnableCollision = 0
         };
@@ -107,9 +99,15 @@ public class GameManager : MonoBehaviour {
 
         // Add the component data to the jointEntity
         entityManager.AddComponentData(jointEntity, componentData);
-    }
 
-    void OnDestroy() {
-        assetStore.Dispose();
+        //// Adding buffer to entity
+        //entityManager.AddBuffer<BufferCollisionDetails>(player);
+        //entityManager.AddComponent<ColAngle>(player);
+        //entityManager.AddComponent<BaseSpeed>(player);
+        //entityManager.SetComponentData(player, new BaseSpeed { Value = 8f });
+        //entityManager.AddComponent<JumpHeight>(player);
+        //entityManager.SetComponentData(player, new JumpHeight { Value = 15f });
+
+        //var entity = entityManager.Instantiate(player);
     }
 }
