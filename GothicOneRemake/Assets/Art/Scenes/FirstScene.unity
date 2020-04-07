@@ -215,13 +215,13 @@ MonoBehaviour:
         Value: 0
         CombineMode: 2
     m_BelongsTo:
-      m_Override: 1
+      m_Override: 0
       m_Value: 0000010000000000000000000000000000000000000000000000000000000000
     m_CollidesWith:
-      m_Override: 1
+      m_Override: 0
       m_Value: 0100000000000000000000000000000000000000000000000000000000000000
     m_RaisesCollisionEvents:
-      m_Override: 1
+      m_Override: 0
       m_Value: 1
     m_CustomTags:
       m_Override: 0
@@ -396,13 +396,13 @@ MonoBehaviour:
         Value: 0
         CombineMode: 2
     m_BelongsTo:
-      m_Override: 1
+      m_Override: 0
       m_Value: 0000010000000000000000000000000000000000000000000000000000000000
     m_CollidesWith:
-      m_Override: 1
+      m_Override: 0
       m_Value: 0100000000000000000000000000000000000000000000000000000000000000
     m_RaisesCollisionEvents:
-      m_Override: 1
+      m_Override: 0
       m_Value: 1
     m_CustomTags:
       m_Override: 1
@@ -583,13 +583,13 @@ MonoBehaviour:
         Value: 0
         CombineMode: 2
     m_BelongsTo:
-      m_Override: 1
+      m_Override: 0
       m_Value: 0000010000000000000000000000000000000000000000000000000000000000
     m_CollidesWith:
-      m_Override: 1
+      m_Override: 0
       m_Value: 0100000000000000000000000000000000000000000000000000000000000000
     m_RaisesCollisionEvents:
-      m_Override: 1
+      m_Override: 0
       m_Value: 1
     m_CustomTags:
       m_Override: 0

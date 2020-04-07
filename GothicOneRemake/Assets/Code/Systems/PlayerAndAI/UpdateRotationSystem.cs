@@ -4,8 +4,7 @@ using Unity.Physics;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[DisableAutoCreation]
-[UpdateAfter(typeof(TransformSystemGroup))]
+
 public class UpdateRotationSystem : SystemBase {
     EndSimulationEntityCommandBufferSystem endSimulationECBSystem;
 
@@ -18,7 +17,7 @@ public class UpdateRotationSystem : SystemBase {
 
         var buffer = endSimulationECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, in Heading heading, in LocalToWorld ltw) => {
+        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, in Heading heading, in LocalToWorld ltw, in PhysicsVelocity velocity) => {
 
 
             var magnitude = GetDirectionalMagnitude(heading.Value);
@@ -52,7 +51,7 @@ public class UpdateRotationSystem : SystemBase {
             float GetDirectionalMagnitude(float3 direction) {
                 return math.length(direction * new float3(1f, 0f, 1f));
             }
-        }).WithoutBurst().Run();
+        }).Schedule();
 
         CompleteDependency();
     }

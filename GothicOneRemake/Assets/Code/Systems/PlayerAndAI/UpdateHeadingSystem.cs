@@ -2,9 +2,8 @@
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Transforms;
-using UnityEngine;
 
-[DisableAutoCreation]
+
 public class UpdateHeadingSystem : SystemBase {
     protected override void OnUpdate() {
 
@@ -72,6 +71,6 @@ public class UpdateHeadingSystem : SystemBase {
                          m_colAngle = -1;
                      }
 
-                 }).WithoutBurst().Run();
+                 }).Schedule();
     }
 }
