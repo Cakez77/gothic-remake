@@ -39,8 +39,9 @@ public class CollistionSystem : SystemBase {
             if(colAngles.Exists(entityA)){
                 setColAngle(entityA, colAngles, ltw[entityA].Up);
             }
+            
 
-            if (colAngles.Exists(entityB)) {
+            if(colAngles.Exists(entityB)) {
                 setColAngle(entityB, colAngles, ltw[entityB].Up);
             }
 
@@ -58,9 +59,9 @@ public class CollistionSystem : SystemBase {
             }
 
             void setColAngle(Entity entity, ComponentDataFromEntity<ColAngle> colAngles, float3 ltwUp) {
-                var angle = colAngles[collEntities.EntityA];
+                var angle = colAngles[entity];
                 angle.Value = CalculateAngle(colNormal, ltwUp);
-                colAngles[collEntities.EntityA] = angle;
+                colAngles[entity] = angle;
             }
         }
     }

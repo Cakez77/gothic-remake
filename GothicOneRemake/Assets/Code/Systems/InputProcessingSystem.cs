@@ -34,24 +34,34 @@ public class InputProcessingSystem : SystemBase {
         var cameraR = cameraT.right;
 
 
-        // Update the heading of the player depending on keyboard input and camera playement
-        Entities.ForEach((ref Heading heading, in BaseSpeed baseSpeed, in JumpHeight jumpHeight) => {
-            // calculate raw heading value alont the X and Z Axis
-            var rawHeading = xDir * cameraFwd + zDir * cameraR;
-            rawHeading.y = 0f;
+        // Update the heading of the player depending on keyboard input and camera placement
+        Entities
+            .ForEach((ref Heading heading, in BaseSpeed baseSpeed, in JumpHeight jumpHeight) => {
 
-            // normalize the raw value, this ensures consistent movement
-            // in all directions
-            var nHeading = math.normalizesafe(rawHeading, 0);
+                var rawHeading = HeadingRelativeToCamera();
+                var nHeading = math.normalizesafe(rawHeading, 0);
 
-            // Set the jump height
-            nHeading.y = spaceDown ? jumpHeight.Value : 0;
-                
+                nHeading = CalculateSpeed(baseSpeed.Value);
+                nHeading.y = AddJumpForceIfJumpKey(jumpHeight.Value);
 
-            // write back the calculated value
-            heading.Value = nHeading;
+                heading.Value = nHeading;
 
-        }).ScheduleParallel();
+
+
+                //===========================  Simple helper functions    =============================    
+                float3 HeadingRelativeToCamera() {
+                    return (xDir * cameraFwd + zDir * cameraR) * new float3(1f, 0, 1f);
+                }
+
+                float3 CalculateSpeed(float movementSpeed) {
+                    return nHeading * movementSpeed;
+                }
+
+                float AddJumpForceIfJumpKey(float height) {
+                    return spaceDown ? height : 0;
+                }
+
+            }).ScheduleParallel();
 
 
         // Updating components the UpdateCameraSystem needs to read 

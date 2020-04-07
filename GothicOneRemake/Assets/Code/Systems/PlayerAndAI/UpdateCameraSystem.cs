@@ -28,6 +28,7 @@ public class UpdateCameraSystem : SystemBase {
 
                 var currentRotation = rotation.Value;
                 var targetRotation = GetTargetRotation(pitchYaw.Value);
+
                 rotation.Value = RotateSmooth(targetRotation);
 
 
