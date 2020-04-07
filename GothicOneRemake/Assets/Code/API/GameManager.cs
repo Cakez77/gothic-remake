@@ -6,13 +6,11 @@ using Unity.Scenes;
 using Unity.Physics;
 
 public class GameManager : MonoBehaviour {
-    // TODO: Implement a proper SubScene System to load on demand
-    public SubScene scene;
+
     public GameObject playerPrefab;
     private EntityManager entityManager;
     private BlobAssetStore assetStore;
 
-    private EntityArchetype aiArchetype;
 
     void Start() {
 

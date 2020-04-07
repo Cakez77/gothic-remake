@@ -20,11 +20,11 @@ public class InputProcessingSystem : SystemBase {
         var xDir = (keyboard.wKey.isPressed ? 1 : 0) + (keyboard.sKey.isPressed ? -1 : 0);
         var zDir = (keyboard.aKey.isPressed ? -1 : 0) + (keyboard.dKey.isPressed ? 1 : 0);
 
-        var spaceDown = keyboard.spaceKey.wasPressedThisFrame;
+        var spaceDown = keyboard.spaceKey.isPressed ? 1 : 0;
 
         var mouseDir = new float2(-Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"));
 
-        var scrollDir = mouse.scroll.ReadValue().y / 100;
+        var scrollDir = mouse.scroll.ReadValue().y / 200;
 
         //===========================   Accuire data for calculation    =============================
 
@@ -34,34 +34,25 @@ public class InputProcessingSystem : SystemBase {
         var cameraR = cameraT.right;
 
 
+        // TODO: Read up on Schedule, ScheduleParallel
         // Update the heading of the player depending on keyboard input and camera placement
-        Entities
-            .ForEach((ref Heading heading, in BaseSpeed baseSpeed, in JumpHeight jumpHeight) => {
+        Entities.ForEach((ref Heading heading) => {
 
-                var rawHeading = HeadingRelativeToCamera();
-                var nHeading = math.normalizesafe(rawHeading, 0);
+            var rawHeading = HeadingRelativeToCamera();
+            var nHeading = math.normalizesafe(rawHeading, 0);
 
-                nHeading = CalculateSpeed(baseSpeed.Value);
-                nHeading.y = AddJumpForceIfJumpKey(jumpHeight.Value);
-
-                heading.Value = nHeading;
+            heading.Value = nHeading;
 
 
 
-                //===========================  Simple helper functions    =============================    
-                float3 HeadingRelativeToCamera() {
-                    return (xDir * cameraFwd + zDir * cameraR) * new float3(1f, 0, 1f);
-                }
+            //===========================  Simple helper functions    =============================    
+            float3 HeadingRelativeToCamera() {
+                var dir = (xDir * cameraFwd + zDir * cameraR);
+                dir.y = spaceDown;
+                return dir;
+            }
 
-                float3 CalculateSpeed(float movementSpeed) {
-                    return nHeading * movementSpeed;
-                }
-
-                float AddJumpForceIfJumpKey(float height) {
-                    return spaceDown ? height : 0;
-                }
-
-            }).ScheduleParallel();
+        }).ScheduleParallel();
 
 
         // Updating components the UpdateCameraSystem needs to read 

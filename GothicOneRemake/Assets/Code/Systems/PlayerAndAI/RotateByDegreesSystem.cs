@@ -2,6 +2,8 @@
 using Unity.Mathematics;
 using UnityEngine;
 using Unity.Transforms;
+
+[DisableAutoCreation]
 public class RotateByDegreesSystem : SystemBase {
     EndSimulationEntityCommandBufferSystem endSimulationECBSystem;
 

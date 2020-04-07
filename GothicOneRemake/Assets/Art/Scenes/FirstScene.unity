@@ -215,13 +215,13 @@ MonoBehaviour:
         Value: 0
         CombineMode: 2
     m_BelongsTo:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0000010000000000000000000000000000000000000000000000000000000000
     m_CollidesWith:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0100000000000000000000000000000000000000000000000000000000000000
     m_RaisesCollisionEvents:
-      m_Override: 0
+      m_Override: 1
       m_Value: 1
     m_CustomTags:
       m_Override: 0
@@ -354,7 +354,7 @@ MonoBehaviour:
     z: 0
   m_PrimitiveSize:
     x: 1.0000001
-    y: 1
+    y: 0.99999994
     z: 1
   m_PrimitiveOrientation:
     Value:
@@ -396,16 +396,16 @@ MonoBehaviour:
         Value: 0
         CombineMode: 2
     m_BelongsTo:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0000010000000000000000000000000000000000000000000000000000000000
     m_CollidesWith:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0100000000000000000000000000000000000000000000000000000000000000
     m_RaisesCollisionEvents:
-      m_Override: 0
+      m_Override: 1
       m_Value: 1
     m_CustomTags:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0000000000000000
   m_ConvexRadius_Deprecated: -1
 --- !u!23 &245248311
@@ -583,13 +583,13 @@ MonoBehaviour:
         Value: 0
         CombineMode: 2
     m_BelongsTo:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0000010000000000000000000000000000000000000000000000000000000000
     m_CollidesWith:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0100000000000000000000000000000000000000000000000000000000000000
     m_RaisesCollisionEvents:
-      m_Override: 0
+      m_Override: 1
       m_Value: 1
     m_CustomTags:
       m_Override: 0
@@ -865,7 +865,7 @@ MonoBehaviour:
       m_Value: 0101010101010101010101010101010101010101010101010101010101010101
     m_RaisesCollisionEvents:
       m_Override: 0
-      m_Value: 0
+      m_Value: 1
     m_CustomTags:
       m_Override: 0
       m_Value: 0000000000000000
@@ -899,7 +899,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e91559f5e0bd5458cf19d817bb04c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scene: {fileID: 0}
   playerPrefab: {fileID: 4359966677429177214, guid: b799249caf471f44c8378059f71a1bce,
     type: 3}
 --- !u!4 &971573439

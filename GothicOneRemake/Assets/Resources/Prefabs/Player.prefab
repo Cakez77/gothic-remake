@@ -68,10 +68,10 @@ GameObject:
   - component: {fileID: 4359966677429177208}
   - component: {fileID: 4359966677429177211}
   - component: {fileID: 4359966677429177210}
-  - component: {fileID: 2095302344}
-  - component: {fileID: 2095302346}
-  - component: {fileID: 2095302347}
-  - component: {fileID: 4863934117546236984}
+  - component: {fileID: -7496193904036206239}
+  - component: {fileID: 9054783942915410699}
+  - component: {fileID: -5667980024626210676}
+  - component: {fileID: 2820064584104201914}
   m_Layer: 11
   m_Name: Player
   m_TagString: Untagged
@@ -142,19 +142,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &2095302344
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4359966677429177214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50308e56202a5d74c86f1fcdc4a4d2c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2095302346
+--- !u!114 &-7496193904036206239
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -178,7 +166,7 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  m_GravityFactor: 3
+  m_GravityFactor: 1
   m_OverrideDefaultMassDistribution: 0
   m_CenterOfMass:
     x: 0
@@ -203,7 +191,7 @@ MonoBehaviour:
     Tag05: 0
     Tag06: 0
     Tag07: 0
---- !u!114 &2095302347
+--- !u!114 &9054783942915410699
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -215,29 +203,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b275e5f92732148048d7b77e264ac30e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ShapeType: 1
+  m_ShapeType: 0
   m_PrimitiveCenter:
     x: 0
     y: 0
-    z: 0
+    z: 0.008530021
   m_PrimitiveSize:
     x: 1
-    y: 1
-    z: 2
+    y: 2
+    z: 1.01706
   m_PrimitiveOrientation:
     Value:
-      x: 270
-      y: 270
+      x: -0
+      y: 0
       z: 0
     RotationOrder: 4
   m_Capsule:
     Height: 2
-    Radius: 0.5
-    Axis: 2
+    Radius: 0.50853
+    Axis: 1
   m_Cylinder:
     Height: 2
-    Radius: 0.5
-    Axis: 2
+    Radius: 0.50853
+    Axis: 1
   m_CylinderSideCount: 20
   m_SphereRadius: 1
   m_MinimumSkinnedVertexWeight: 0.1
@@ -256,7 +244,7 @@ MonoBehaviour:
     m_Friction:
       m_Override: 0
       m_Value:
-        Value: 0.5
+        Value: 1
         CombineMode: 0
     m_Restitution:
       m_Override: 0
@@ -276,7 +264,7 @@ MonoBehaviour:
       m_Override: 0
       m_Value: 0000000000000000
   m_ConvexRadius_Deprecated: -1
---- !u!114 &4863934117546236984
+--- !u!114 &-5667980024626210676
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -288,8 +276,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ea6a81c9fb33fe44ab5f8d0cb128dbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 7
-  jumpHeight: 2
+  movementSpeed: 5
+  jumpHeight: 7
+--- !u!114 &2820064584104201914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4359966677429177214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50308e56202a5d74c86f1fcdc4a4d2c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4359966678150174825
 GameObject:
   m_ObjectHideFlags: 0

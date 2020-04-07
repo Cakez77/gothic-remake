@@ -5,7 +5,6 @@ using Unity.Transforms;
 using UnityEngine;
 
 
-
 public class UpdateCameraSystem : SystemBase {
 
     protected override void OnUpdate() {
@@ -30,7 +29,6 @@ public class UpdateCameraSystem : SystemBase {
                 var targetRotation = GetTargetRotation(pitchYaw.Value);
 
                 rotation.Value = RotateSmooth(targetRotation);
-
 
 
 

@@ -7,7 +7,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 
-
 public class CollistionSystem : SystemBase {
 
     private BuildPhysicsWorld buildPhysicsWorld;

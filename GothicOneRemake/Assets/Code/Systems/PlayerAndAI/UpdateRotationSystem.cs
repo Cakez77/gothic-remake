@@ -4,7 +4,8 @@ using Unity.Physics;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
+[DisableAutoCreation]
+[UpdateAfter(typeof(TransformSystemGroup))]
 public class UpdateRotationSystem : SystemBase {
     EndSimulationEntityCommandBufferSystem endSimulationECBSystem;
 
@@ -17,9 +18,12 @@ public class UpdateRotationSystem : SystemBase {
 
         var buffer = endSimulationECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, in Heading heading) => {
+        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, in Heading heading, in LocalToWorld ltw) => {
 
-            if (math.length(heading.Value) > 0) {
+
+            var magnitude = GetDirectionalMagnitude(heading.Value);
+
+            if (magnitude > 0) {
 
                 var forward = math.forward(rotation.Value);
                 var angle = Vector3.Angle(forward, heading.Value);
@@ -27,21 +31,28 @@ public class UpdateRotationSystem : SystemBase {
                 if (angle > 150) {
                     AddWaitForRotationComponent();
                 } else {
-                    rotation.Value = RotateSmooth(rotation.Value, heading.Value);
+                    rotation.Value = RotateSmooth(rotation.Value, heading.Value, ltw.Up);
                 }
             }
 
 
             //===========================  Simple helper functions  =============================
-            quaternion RotateSmooth(quaternion rot, float3 direction) {
-                var targetRotation = quaternion.LookRotationSafe(direction, new float3(0f, 1f, 0f));
+            quaternion RotateSmooth(quaternion rot, float3 direction, float3 up) {
+                var targetRotation = quaternion.LookRotation(direction, up);
                 return math.slerp(rot, targetRotation, 0.1f);
             }
 
             void AddWaitForRotationComponent() {
                 buffer.AddComponent(entityInQueryIndex, entity, typeof(WaitForRotationTag));
             }
-        }).ScheduleParallel();
+
+            /**
+             * This function calculates the magnitued on the X and Z Axis
+             */
+            float GetDirectionalMagnitude(float3 direction) {
+                return math.length(direction * new float3(1f, 0f, 1f));
+            }
+        }).WithoutBurst().Run();
 
         CompleteDependency();
     }
