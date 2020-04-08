@@ -17,7 +17,7 @@ public class UpdateRotationSystem : SystemBase {
 
         var buffer = endSimulationECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, in Heading heading, in LocalToWorld ltw, in PhysicsVelocity velocity) => {
+        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, in Heading heading, in PhysicsVelocity velocity) => {
 
 
             var magnitude = GetDirectionalMagnitude(heading.Value);
@@ -30,14 +30,14 @@ public class UpdateRotationSystem : SystemBase {
                 if (angle > 150) {
                     AddWaitForRotationComponent();
                 } else {
-                    rotation.Value = RotateSmooth(rotation.Value, heading.Value, ltw.Up);
+                    rotation.Value = RotateSmooth(rotation.Value, heading.Value);
                 }
             }
 
 
             //===========================  Simple helper functions  =============================
-            quaternion RotateSmooth(quaternion rot, float3 direction, float3 up) {
-                var targetRotation = quaternion.LookRotation(direction, up);
+            quaternion RotateSmooth(quaternion rot, float3 direction) {
+                var targetRotation = quaternion.LookRotation(direction, math.up());
                 return math.slerp(rot, targetRotation, 0.1f);
             }
 
@@ -51,7 +51,7 @@ public class UpdateRotationSystem : SystemBase {
             float GetDirectionalMagnitude(float3 direction) {
                 return math.length(direction * new float3(1f, 0f, 1f));
             }
-        }).Schedule();
+        }).ScheduleParallel();
 
         CompleteDependency();
     }
