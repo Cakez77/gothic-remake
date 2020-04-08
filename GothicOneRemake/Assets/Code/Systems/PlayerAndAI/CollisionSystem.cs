@@ -26,6 +26,7 @@ public class CollistionSystem : SystemBase {
     private struct CollisionJob : ICollisionEventsJob {
 
         public ComponentDataFromEntity<ColAngle> colAngles;
+        public ComponentDataFromEntity<ColNormal> normals;
         [ReadOnly] public ComponentDataFromEntity<LocalToWorld> ltw;
 
         public void Execute(CollisionEvent collisionEvent) {
@@ -38,11 +39,13 @@ public class CollistionSystem : SystemBase {
 
             if(colAngles.Exists(entityA)){
                 setColAngle(entityA, colAngles, ltw[entityA].Up);
+                SetColNormal(entityA, normals, colNormal);
             }
             
 
             if(colAngles.Exists(entityB)) {
                 setColAngle(entityB, colAngles, ltw[entityB].Up);
+                SetColNormal(entityB, normals, colNormal);
             }
 
 
@@ -63,6 +66,12 @@ public class CollistionSystem : SystemBase {
                 angle.Value = CalculateAngle(colNormal, ltwUp);
                 colAngles[entity] = angle;
             }
+
+            void SetColNormal(Entity entity, ComponentDataFromEntity<ColNormal> normals, float3 normal) {
+                var entityNormal = normals[entity];
+                entityNormal.Value = normal;
+                normals[entity] = entityNormal;
+            }
         }
     }
 
@@ -70,8 +79,10 @@ public class CollistionSystem : SystemBase {
 
         var colAngles = GetComponentDataFromEntity<ColAngle>(false);
         var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
+        var normals = GetComponentDataFromEntity<ColNormal>(false);
 
         var collisionJob = new CollisionJob() {
+            normals = normals,
             colAngles = colAngles,
             ltw = ltw
         }.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, Dependency);

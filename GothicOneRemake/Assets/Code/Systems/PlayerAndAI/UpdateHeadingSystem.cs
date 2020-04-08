@@ -16,13 +16,13 @@ public class UpdateHeadingSystem : SystemBase {
                 (ref PhysicsVelocity velocity,
                  ref ColAngle colAngle,
                  in Heading heading,
-                 in LocalToWorld ltw,
                  in BaseSpeed speed,
                  in JumpHeight jumpHeight) => {
 
-                     var m_heading = heading.Value;
-                     var m_velocity = velocity.Linear;
+                     var currentVel = velocity.Linear;
                      var m_colAngle = colAngle.Value;
+                     var dir = heading.Value;
+                     var height = jumpHeight.Value;
 
 
 
@@ -31,10 +31,11 @@ public class UpdateHeadingSystem : SystemBase {
                      }
 
                      if (isInRange(m_colAngle, 0, 40)) {
-                         Jump(jumpHeight.Value);
+                         Jump();
                      }
 
-                     velocity.Linear = m_velocity;
+
+                     velocity.Linear = ApplyVelocity(velocity.Linear);
                      colAngle.Value = m_colAngle;
 
 
@@ -54,21 +55,36 @@ public class UpdateHeadingSystem : SystemBase {
                       * on the nDirection Vector and the speed supplied to the function.
                       */
                      void Move(float moveSpeed) {
-                         m_velocity.x = math.lerp(m_velocity.x, m_heading.x * moveSpeed, 0.3f);
-                         m_velocity.z = math.lerp(m_velocity.z, m_heading.z * moveSpeed, 0.3f);
+                         currentVel = math.lerp(currentVel, dir * moveSpeed, 0.3f);
                      }
 
                      /**
                       * Applies velocity along the Y Axis in case the Player is grounded.
                       * The player is grounded if his angle of collision is within a range 
-                      * of 0 and 40 degrees. Steeper slopes will cause the player to slide down
-                      * or in the case of 90 degrees, fall down.
+                      * of 0 and 40 degrees. Setting -1 as colAngle ensures that this function
+                      * won't be called, even it height > 0
                       */
-                     void Jump(float height) {
-                         m_velocity.y += math.lerp(m_heading.y, m_heading.y * height, 0.5f);
+                     void Jump() {
+                         if (height > 0) {
 
-                         // Set the collisionAngle to -1 to indicate that we are in the air(jumping/falling)
-                         m_colAngle = -1;
+                             m_colAngle = -1;
+
+                             currentVel.y = height;
+                         }
+                     }
+
+                     float3 ApplyVelocity(float3 vel) {
+                         var finalVel = vel;
+
+                         finalVel.x = currentVel.x;
+                         finalVel.z = currentVel.z;
+
+                         // Bewege ich mich auf einer Rampe oder bin ich gesprungen?
+                         if (dir.y != 0 || currentVel.y == height) {
+                             finalVel.y = currentVel.y;
+                         }
+
+                         return finalVel;
                      }
 
                  }).Schedule();

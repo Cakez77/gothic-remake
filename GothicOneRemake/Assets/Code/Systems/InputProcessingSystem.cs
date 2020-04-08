@@ -20,7 +20,7 @@ public class InputProcessingSystem : SystemBase {
         var xDir = (keyboard.wKey.isPressed ? 1 : 0) + (keyboard.sKey.isPressed ? -1 : 0);
         var zDir = (keyboard.aKey.isPressed ? -1 : 0) + (keyboard.dKey.isPressed ? 1 : 0);
 
-        var spaceDown = keyboard.spaceKey.isPressed ? 1 : 0;
+        var spaceDown = keyboard.spaceKey.isPressed ? 7 : 0;
 
         var mouseDir = new float2(-Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"));
 
@@ -36,19 +36,23 @@ public class InputProcessingSystem : SystemBase {
 
         // TODO: Read up on Schedule, ScheduleParallel
         // Update the heading of the player depending on keyboard input and camera placement
-        Entities.ForEach((ref Heading heading) => {
+        Entities.ForEach((ref Heading heading, ref JumpHeight jumpHeight) => {
+            var m_heading = heading.Value;
 
             var rawHeading = HeadingRelativeToCamera();
             var nHeading = math.normalizesafe(rawHeading, 0);
 
-            heading.Value = nHeading;
+            heading.Value.x = nHeading.x;
+            heading.Value.z = nHeading.z;
+            jumpHeight.Value = spaceDown;
 
 
 
             //===========================  Simple helper functions    =============================    
             float3 HeadingRelativeToCamera() {
                 var dir = (xDir * cameraFwd + zDir * cameraR);
-                dir.y = spaceDown;
+                //TODO: Remove when the new system is in place
+                dir.y = 0;
                 return dir;
             }
 

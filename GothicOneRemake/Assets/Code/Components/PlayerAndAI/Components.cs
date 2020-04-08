@@ -27,5 +27,9 @@ public struct ColAngle : IComponentData {
     public float Value;
 }
 
+public struct ColNormal : IComponentData {
+    public float3 Value;
+}
+
 [WriteGroup(typeof(PhysicsVelocity))]
 public struct WaitForRotationTag : IComponentData {}
