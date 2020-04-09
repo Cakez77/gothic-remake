@@ -17,11 +17,19 @@ public class RotateByDegreesSystem : SystemBase {
         var buffer = endSimulationECBSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities.WithAll<WaitForRotationTag>().ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, in Heading heading) => {
-            rotation.Value = Quaternion.RotateTowards(rotation.Value, quaternion.LookRotation(heading.Value, new float3(0f, 1f, 0f)), 190);
+            // Rotate by 180° 
+            rotation.Value = RotateByDegrees(rotation.Value, heading.Value, 182);
 
+            // Remove the tag
             buffer.RemoveComponent(entityInQueryIndex, entity, typeof(WaitForRotationTag));
-            if (math.forward(rotation.Value).y == heading.Value.y) {
+
+
+            quaternion RotateByDegrees(quaternion rot, float3 dir, float deg) {
+                var targetRot = quaternion.LookRotationSafe(dir, new float3(0f, 1f, 0f));
+                return Quaternion.RotateTowards(rot, targetRot, deg);
             }
         }).ScheduleParallel();
+
+        Dependency.Complete();
     }
 }

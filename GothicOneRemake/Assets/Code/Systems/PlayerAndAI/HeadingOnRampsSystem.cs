@@ -18,7 +18,10 @@ public class HeadingOnRampsSystem : SystemBase {
             if(colAngle.Value == -1) {
                 heading.Value.y = 0f;
             } else {
-                heading.Value.y = projected.y;
+                if(projected.y < 0) {
+                    heading.Value.y = projected.y;
+                }
+                
             }
             
 

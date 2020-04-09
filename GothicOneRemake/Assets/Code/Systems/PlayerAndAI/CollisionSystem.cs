@@ -81,6 +81,13 @@ public class CollistionSystem : SystemBase {
         var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
         var normals = GetComponentDataFromEntity<ColNormal>(false);
 
+
+        // Reset collision from prev. Frame
+        Entities.ForEach((ref ColAngle colAngle) => {
+            colAngle.Value = -1;
+        }).Schedule();
+
+        // Check for collision again.
         var collisionJob = new CollisionJob() {
             normals = normals,
             colAngles = colAngles,

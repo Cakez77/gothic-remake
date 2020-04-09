@@ -17,7 +17,7 @@ public class UpdateRotationSystem : SystemBase {
 
         var buffer = endSimulationECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, in Heading heading, in PhysicsVelocity velocity) => {
+        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, ref PhysicsVelocity velocity, ref Heading heading) => {
 
 
             var magnitude = GetDirectionalMagnitude(heading.Value);
@@ -28,6 +28,8 @@ public class UpdateRotationSystem : SystemBase {
                 var angle = Vector3.Angle(forward, heading.Value);
 
                 if (angle > 150) {
+                    velocity.Linear = float3.zero;
+                    heading.Value.y = 0;
                     AddWaitForRotationComponent();
                 } else {
                     rotation.Value = RotateSmooth(rotation.Value, heading.Value);
