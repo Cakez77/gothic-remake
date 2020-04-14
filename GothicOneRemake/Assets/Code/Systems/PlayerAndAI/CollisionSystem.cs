@@ -8,6 +8,7 @@ using Unity.Transforms;
 using Unity.Collections;
 
 
+[DisableAutoCreation]
 public class CollistionSystem : SystemBase {
 
     private BuildPhysicsWorld buildPhysicsWorld;
@@ -83,8 +84,9 @@ public class CollistionSystem : SystemBase {
 
 
         // Reset collision from prev. Frame
-        Entities.ForEach((ref ColAngle colAngle) => {
+        Entities.ForEach((ref ColAngle colAngle, ref ColNormal colNormal) => {
             colAngle.Value = -1;
+            colNormal.Value = float3.zero;
         }).Schedule();
 
         // Check for collision again.

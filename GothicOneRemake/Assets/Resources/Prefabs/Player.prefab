@@ -214,9 +214,9 @@ MonoBehaviour:
     z: 2
   m_PrimitiveOrientation:
     Value:
-      x: 270
-      y: 270
-      z: 0
+      x: -90
+      y: 0
+      z: -90
     RotationOrder: 4
   m_Capsule:
     Height: 2
@@ -237,7 +237,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: b3a682ced536f8f44bebb4b2568bd477, type: 2}
     m_IsTrigger:
       m_Override: 0
       m_Value: 0
@@ -252,10 +252,10 @@ MonoBehaviour:
         Value: 0
         CombineMode: 2
     m_BelongsTo:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0100000000000000000000000000000000000000000000000000000000000000
     m_CollidesWith:
-      m_Override: 0
+      m_Override: 1
       m_Value: 0000010000000000000000000000000000000000000000000000000000000000
     m_RaisesCollisionEvents:
       m_Override: 0

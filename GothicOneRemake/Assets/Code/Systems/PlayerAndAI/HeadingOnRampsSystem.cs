@@ -1,30 +1,30 @@
 ﻿using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
+using Unity.Mathematics;
 using Unity.Transforms;
 
+[DisableAutoCreation]
+[UpdateAfter(typeof(InputProcessingSystem))]
 public class HeadingOnRampsSystem : SystemBase {
     protected override void OnUpdate() {
 
+        Entities.ForEach((ref YVelocity gravity, in ColNormal colNormal, in LocalToWorld ltw) => {
+            var normal = colNormal.Value;
 
-        Entities.ForEach((ref Heading heading, in ColNormal colNormal, in ColAngle colAngle, in LocalToWorld ltw) => {
+            if (Magnitude(normal) > 0 && gravity.Value == 0) {
 
-            var m_heading = heading.Value;
+                var cross = math.cross(ltw.Right, colNormal.Value);
 
-            var cross = math.cross(ltw.Right, colNormal.Value);
-            var projected = math.dot(heading.Value, cross)*cross;
-            // Linear Velocity.y is 7, next frame heading.Value.y will be != 0 -> LinearVelocity.y will be set to almost 0
-            // Is the player jumping?
-            if(colAngle.Value == -1) {
-                heading.Value.y = 0f;
-            } else {
-                if(projected.y < 0) {
-                    heading.Value.y = projected.y;
+                if (cross.y < 0) {
+                    gravity.Value = cross.y;
                 }
-                
-            }
-            
 
+            }
+
+
+            float Magnitude(float3 vector) {
+                return math.length(normal);
+            }
         }).WithoutBurst().Run();
     }
 }

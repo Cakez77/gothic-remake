@@ -14,7 +14,11 @@ public struct JumpHeight : IComponentData {
  * entity.
  */
 public struct Heading : IComponentData {
-    public float3 Value;
+    public float2 Value;
+}
+
+public struct YVelocity : IComponentData {
+    public float Value;
 }
 
 /**
@@ -29,6 +33,14 @@ public struct ColAngle : IComponentData {
 
 public struct ColNormal : IComponentData {
     public float3 Value;
+}
+
+public struct OnSlope : IComponentData {
+    public bool Value;
+}
+
+public struct OnGround : IComponentData {
+    public bool Value;
 }
 
 [WriteGroup(typeof(PhysicsVelocity))]

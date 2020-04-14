@@ -20,40 +20,38 @@ public class InputProcessingSystem : SystemBase {
         var xDir = (keyboard.wKey.isPressed ? 1 : 0) + (keyboard.sKey.isPressed ? -1 : 0);
         var zDir = (keyboard.aKey.isPressed ? -1 : 0) + (keyboard.dKey.isPressed ? 1 : 0);
 
-        var spaceDown = keyboard.spaceKey.isPressed ? 7 : 0;
+        var spaceDown = keyboard.spaceKey.isPressed ? 1 : 0;
 
         var mouseDir = new float2(-Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"));
 
-        var scrollDir = mouse.scroll.ReadValue().y / 200;
-
-        //===========================   Accuire data for calculation    =============================
-
-        // TODO: Will be removed once the camera is imported in ECS
-        var cameraT = UnityEngine.Camera.main.transform;
-        var cameraFwd = cameraT.forward;
-        var cameraR = cameraT.right;
+        var scrollDir = -mouse.scroll.ReadValue().y / 200;
 
 
-        // TODO: Read up on Schedule, ScheduleParallel
-        // Update the heading of the player depending on keyboard input and camera placement
-        Entities.ForEach((ref Heading heading, ref JumpHeight jumpHeight) => {
-            var m_heading = heading.Value;
+            // TODO: Will be removed once the camera is imported in ECS
+            var cameraT = UnityEngine.Camera.main.transform;
+            var cameraFwd = cameraT.forward;
+            var cameraR = cameraT.right;
 
-            var rawHeading = HeadingRelativeToCamera();
-            var nHeading = math.normalizesafe(rawHeading, 0);
 
-            heading.Value.x = nHeading.x;
-            heading.Value.z = nHeading.z;
-            jumpHeight.Value = spaceDown;
+        // Heading indicates in which direction the player should move
+        Entities.ForEach((ref Heading heading, ref YVelocity gravity, in JumpHeight jumpHeight) => {
+
+            var r_heading = HeadingRelativeToCamera();
+            r_heading = Normalize();
+
+            gravity.Value = spaceDown * jumpHeight.Value;
+            heading.Value = r_heading;
 
 
 
             //===========================  Simple helper functions    =============================    
-            float3 HeadingRelativeToCamera() {
+            float2 HeadingRelativeToCamera() {
                 var dir = (xDir * cameraFwd + zDir * cameraR);
-                //TODO: Remove when the new system is in place
-                dir.y = 0;
-                return dir;
+                return new float2(dir.x, dir.z);
+            }
+
+            float2 Normalize() {
+                return math.normalizesafe(r_heading, 0);
             }
 
         }).ScheduleParallel();

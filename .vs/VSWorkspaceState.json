@@ -2,11 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\GothicOneRemake",
-    "\\GothicOneRemake\\Assets",
     "\\GothicOneRemake\\Assets\\Code",
     "\\GothicOneRemake\\Assets\\Code\\Components",
-    "\\GothicOneRemake\\Assets\\Code\\Systems"
+    "\\GothicOneRemake\\Assets\\Code\\Systems",
+    "\\GothicOneRemake\\Packages"
   ],
-  "SelectedNode": "\\GothicOneRemake\\Assets\\Code\\Systems\\PlayerCollisionCheck.cs",
+  "SelectedNode": "\\GothicOneRemake\\Packages\\manifest.json",
   "PreviewInSolutionExplorer": false
 }
