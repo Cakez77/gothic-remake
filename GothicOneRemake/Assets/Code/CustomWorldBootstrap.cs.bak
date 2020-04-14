@@ -1,0 +1,75 @@
+    using System.Reflection;
+    using Unity.Entities;
+    using UnityEngine.LowLevel;
+    using UnityEngine.PlayerLoop;
+     
+    namespace Lebdev.Core
+    {
+        public class CustomWorldBootstrap : ICustomBootstrap
+        {
+     
+            static MethodInfo InsertManagerIntoSubsystemList = typeof(ScriptBehaviourUpdateOrder).GetMethod("InsertManagerIntoSubsystemList", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+     
+            public bool Initialize(string defaultWorldName)
+            {
+                var world = new Unity.Entities.World("Custom World");
+     
+                Unity.Entities.World.DefaultGameObjectInjectionWorld = world;
+                var systems = DefaultWorldInitialization.GetAllSystems(WorldSystemFilterFlags.Default);
+     
+                DefaultWorldInitialization.AddSystemsToRootLevelSystemGroups(world, systems);
+                UpdatePlayerLoop(world);
+     
+                return true;
+            }
+     
+            protected static PlayerLoopSystem[] ReplaceSystems<T>(Unity.Entities.World world, in PlayerLoopSystem[] subSystems)
+                where T : ComponentSystemBase
+            {
+                var newSubSystems = new PlayerLoopSystem[subSystems.Length + 1];
+                for (var j = 0; j < subSystems.Length; ++j)
+                    newSubSystems[j] = subSystems[j];
+     
+                T system = world.GetOrCreateSystem<T>();
+     
+                InsertManagerIntoSubsystemList.MakeGenericMethod(system.GetType())
+                    .Invoke(null, new object[] { newSubSystems, subSystems.Length + 0, system });
+     
+                return newSubSystems;
+            }
+     
+            public static void UpdatePlayerLoop(Unity.Entities.World world)
+            {
+                var playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+     
+                if (ScriptBehaviourUpdateOrder.CurrentPlayerLoop.subSystemList != null)
+                    playerLoop = ScriptBehaviourUpdateOrder.CurrentPlayerLoop;
+     
+                if (world != null)
+                {
+                    PlayerLoopSystem[] playerLoopSystems = playerLoop.subSystemList;
+     
+                    for (var i = 0; i < playerLoopSystems.Length; ++i)
+                    {
+                        if (playerLoopSystems[i].type == typeof(FixedUpdate))
+                        {
+                            playerLoopSystems[i].subSystemList = ReplaceSystems<SimulationSystemGroup>(world, playerLoopSystems[i].subSystemList);
+                        }
+                        else if (playerLoopSystems[i].type == typeof(PreLateUpdate))
+                        {
+                            playerLoopSystems[i].subSystemList = ReplaceSystems<PresentationSystemGroup>(world, playerLoopSystems[i].subSystemList);
+                        }
+                        else if (playerLoopSystems[i].type == typeof(Initialization))
+                        {
+                            playerLoopSystems[i].subSystemList = ReplaceSystems<InitializationSystemGroup>(world, playerLoopSystems[i].subSystemList);
+                        }
+                    }
+                }
+     
+                ScriptBehaviourUpdateOrder.SetPlayerLoop(playerLoop);
+            }
+        }
+    }
+     
+
+ 

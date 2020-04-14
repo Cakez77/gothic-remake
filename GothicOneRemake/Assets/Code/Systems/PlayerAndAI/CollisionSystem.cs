@@ -1,0 +1,103 @@
+﻿using Unity.Entities;
+using UnityEngine;
+using Unity.Physics;
+using Unity.Physics.Systems;
+using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Transforms;
+using Unity.Collections;
+
+
+[DisableAutoCreation]
+public class CollistionSystem : SystemBase {
+
+    private BuildPhysicsWorld buildPhysicsWorld;
+    private StepPhysicsWorld stepPhysicsWorld;
+
+    protected override void OnCreate() {
+        base.OnCreate();
+
+        buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+        stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
+    }
+
+
+    
+    // This job handles all collisions within the world
+    private struct CollisionJob : ICollisionEventsJob {
+
+        public ComponentDataFromEntity<ColAngle> colAngles;
+        public ComponentDataFromEntity<ColNormal> normals;
+        [ReadOnly] public ComponentDataFromEntity<LocalToWorld> ltw;
+
+        public void Execute(CollisionEvent collisionEvent) {
+
+            // Collision occurred
+            var collEntities = collisionEvent.Entities;
+            var colNormal = collisionEvent.Normal;
+            var entityA = collEntities.EntityA;
+            var entityB = collEntities.EntityB;
+
+            if(colAngles.Exists(entityA)){
+                setColAngle(entityA, colAngles, ltw[entityA].Up);
+                SetColNormal(entityA, normals, colNormal);
+            }
+            
+
+            if(colAngles.Exists(entityB)) {
+                setColAngle(entityB, colAngles, ltw[entityB].Up);
+                SetColNormal(entityB, normals, colNormal);
+            }
+
+
+
+            //------------------------------------------------------------------------------------------
+            // Helper Functions
+            // -----------------------------------------------------------------------------------------
+
+            float CalculateAngle(float3 normal, float3 up) {
+
+                var angle = Vector3.Angle(up, normal);
+
+                return angle;
+            }
+
+            void setColAngle(Entity entity, ComponentDataFromEntity<ColAngle> colAngles, float3 ltwUp) {
+                var angle = colAngles[entity];
+                angle.Value = CalculateAngle(colNormal, ltwUp);
+                colAngles[entity] = angle;
+            }
+
+            void SetColNormal(Entity entity, ComponentDataFromEntity<ColNormal> normals, float3 normal) {
+                var entityNormal = normals[entity];
+                entityNormal.Value = normal;
+                normals[entity] = entityNormal;
+            }
+        }
+    }
+
+    protected override void OnUpdate() {
+
+        var colAngles = GetComponentDataFromEntity<ColAngle>(false);
+        var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
+        var normals = GetComponentDataFromEntity<ColNormal>(false);
+
+
+        // Reset collision from prev. Frame
+        Entities.ForEach((ref ColAngle colAngle, ref ColNormal colNormal) => {
+            colAngle.Value = -1;
+            colNormal.Value = float3.zero;
+        }).Schedule();
+
+        // Check for collision again.
+        var collisionJob = new CollisionJob() {
+            normals = normals,
+            colAngles = colAngles,
+            ltw = ltw
+        }.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, Dependency);
+
+        collisionJob.Complete();
+
+    }
+
+}
