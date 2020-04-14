@@ -8,10 +8,7 @@ public struct JumpHeight : IComponentData {
 
 /**
  * This component stores the information where entity is 
- * moving every frame. This is needed because systems like
- * RotationSystem need this value to be different from the 
- * current linear velocity(Velocity.Linear) affecting the 
- * entity.
+ * moving every frame.
  */
 public struct Heading : IComponentData {
     public float2 Value;
@@ -29,14 +26,6 @@ public struct YVelocity : IComponentData {
  */
 public struct ColAngle : IComponentData {
     public float Value;
-}
-
-public struct ColNormal : IComponentData {
-    public float3 Value;
-}
-
-public struct OnSlope : IComponentData {
-    public bool Value;
 }
 
 public struct OnGround : IComponentData {
