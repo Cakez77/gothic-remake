@@ -38,22 +38,63 @@ public class ApplyVelocitySystem : SystemBase
             .WithEntityQueryOptions(EntityQueryOptions.FilterWriteGroup)
             .ForEach(
                 (ref PhysicsVelocity vel,
-                ref OnGround onGround,
-                ref MovementAcceleration movementAcceleration,
-                in Heading heading,
-                in YVelocity yVel,
+                ref OnGround og,
+                ref MovementAcceleration ma,
+                in Heading h,
+                in JumpForce jf,
                 in LocalToWorld ltw) =>
                 {
+                    // local copies 
+                    var linearVelocity = vel.Linear;
+                    var onGround = og.Value;
+                    var movementAcceleration = ma.Value;
+                    var heading = h.Value;
+                    var localToWorld = ltw.Value;
+                    var 
 
-                    var magnitude = math.length(heading.Value);
+                    // environment information 
+                    var groundNormal = ColliderCast(ltw.Position, ltw.Position + new float3(0, -0.75f, 0));
+                    float angle = Vector3.Angle(ltw.Up, groundNormal);
+                    var cross = math.cross(ltw.Right, groundNormal);
 
-                    if (magnitude > 0)
+                    // player states
+                    bool moving = math.length(heading.Value) > 0;
+                    bool grounded = math.length(groundNormal) > 0;
+                    bool inAir = !grounded;
+                    bool jumped = jumpForce.Value != 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    if (moving)
                     {
                         // Increment elapsed time
                         if (movementAcceleration.ElapsedTime < movementAcceleration.AccelerationTime)
                         {
                             movementAcceleration.ElapsedTime += deltaTime;
                         }
+
+                        // Reset reset timer
+                        movementAcceleration.ResetTimer = 0;
 
                         // claculate speed based on elapsedTime
                         var easeInCubicSpeed = movementAcceleration.ElapsedTime / movementAcceleration.AccelerationTime;
@@ -63,10 +104,22 @@ public class ApplyVelocitySystem : SystemBase
                         vel.Linear.x = ltw.Forward.x * easeInCubicSpeed;
                         vel.Linear.z = ltw.Forward.z * easeInCubicSpeed;
                     }
-                    else
+                    else // No Input, start counting
                     {
-                        vel.Linear.x = math.lerp(vel.Linear.x, 0, 0.2f);
-                        vel.Linear.z = math.lerp(vel.Linear.z, 0, 0.2f);
+                        movementAcceleration.ResetTimer += deltaTime;
+
+                        var currentSpeed = math.length(new float3(vel.Linear.x, 0, vel.Linear.z));
+
+                        // apply velocity based on speed
+                        vel.Linear.x = ltw.Forward.x * currentSpeed;
+                        vel.Linear.z = ltw.Forward.z * currentSpeed;
+                    }
+
+
+                    if (movementAcceleration.ResetTimer > 0.5f && moving == 0)
+                    {
+                        vel.Linear.x = math.lerp(vel.Linear.x, 0, 0.3f);
+                        vel.Linear.z = math.lerp(vel.Linear.z, 0, 0.3f);
 
                         // Reset timer
                         movementAcceleration.ElapsedTime = 0;
@@ -75,34 +128,30 @@ public class ApplyVelocitySystem : SystemBase
 
 
 
-                    var groundNormal = ColliderCast(ltw.Position, ltw.Position + new float3(0, -0.75f, 0));
-                    var angle = Vector3.Angle(ltw.Up, groundNormal);
-                    var cross = math.cross(ltw.Right, groundNormal);
-
-                    var grounded = math.length(groundNormal) > 0;
-
                     if (grounded)
                     {
-                        if (yVel.Value != 0) // We jumped
+                        if (jumpForce.Value != 0) // We jumped
                         {
-                            vel.Linear.y = yVel.Value;
+                            vel.Linear.y = jumpForce.Value;
                         }
                         else // We did not jump
                         {
                             if (cross.y < 0) // On a ramp looking down
                             {
-                                if (magnitude == 0) // Standing
+                                if (moving == 0) // Standing
                                 {
-                                    vel.Linear.y = math.lerp(vel.Linear.y, magnitude * cross.y * 6.5f, 0.2f); //TODO Check if this is a good value
+                                    vel.Linear.y = math.lerp(vel.Linear.y, moving * cross.y * 6.5f, 0.2f); //TODO Check if this is a good value
                                 }
                                 else // Moving
                                 {
-                                    vel.Linear.y = magnitude * cross.y * 6.5f; //TODO Check if this is a good value
+                                    vel.Linear.y = moving * cross.y * 6.5f; //TODO Check if this is a good value
                                 }
                             }
                             else // On ground or ramp looking up
                             {
-                                vel.Linear.y = magnitude * cross.y; //TODO Check if this is a good value
+                                vel.Linear.y = moving * cross.y; //TODO Check if this is a good value
+
+
                             }
 
                         }
@@ -111,7 +160,7 @@ public class ApplyVelocitySystem : SystemBase
                     onGround.Value = grounded;
 
 
-                }).ScheduleParallel();
+                }).WithoutBurst().Run();
 
 
 

@@ -17,14 +17,14 @@ public class PlayerAndAIComponents : MonoBehaviour, IConvertGameObjectToEntity {
             typeof(JumpHeight),
             typeof(Heading),
             typeof(ColAngle),
-            typeof(YVelocity),
+            typeof(JumpForce),
             typeof(OnGround),
             typeof(MovementAcceleration));
 
         entityManager.AddComponent(entity, typeof(JumpHeight));
         entityManager.AddComponent(entity, typeof(Heading));
         entityManager.AddComponent(entity, typeof(ColAngle));
-        entityManager.AddComponent(entity, typeof(YVelocity));
+        entityManager.AddComponent(entity, typeof(JumpForce));
         entityManager.AddComponent(entity, typeof(OnGround));
         entityManager.AddComponent(entity, typeof(MovementAcceleration));
 

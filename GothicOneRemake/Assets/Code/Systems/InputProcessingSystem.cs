@@ -34,10 +34,12 @@ public class InputProcessingSystem : SystemBase {
 
 
         // Heading indicates in which direction the player should move
-        Entities.ForEach((ref Heading heading, ref YVelocity gravity, in JumpHeight jumpHeight) => {
+        Entities.ForEach((ref Heading heading, ref JumpForce gravity, in JumpHeight jumpHeight) => {
 
             var r_heading = HeadingRelativeToCamera();
             r_heading = Normalize();
+
+            //Debug.Log("The input values xDir: " + xDir + " and zDir: " + zDir);
 
             gravity.Value = spaceDown * jumpHeight.Value;
             heading.Value = r_heading;
@@ -54,7 +56,7 @@ public class InputProcessingSystem : SystemBase {
                 return math.normalizesafe(r_heading, 0);
             }
 
-        }).ScheduleParallel();
+        }).WithoutBurst().Run();
 
 
         // Updating components the UpdateCameraSystem needs to read 

@@ -15,7 +15,7 @@ public struct Heading : IComponentData {
     public float2 Value;
 }
 
-public struct YVelocity : IComponentData {
+public struct JumpForce : IComponentData {
     public float Value;
 }
 

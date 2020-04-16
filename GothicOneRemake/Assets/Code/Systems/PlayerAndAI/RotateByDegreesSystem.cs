@@ -44,8 +44,8 @@ public class RotateByDegreesSystem : SystemBase
                 var tweenRotationSmooth = smooth180.ElapsedTime / smooth180.Duration;
 
                 // Tween the velocity
-                vel.Linear.x = smooth180.OriginalVelocity.x * SmoothVelocity(tweenRotationSmooth);
-                vel.Linear.z = smooth180.OriginalVelocity.z * SmoothVelocity(tweenRotationSmooth);
+                vel.Linear = smooth180.OriginalVelocity * SmoothVelocity(tweenRotationSmooth);
+                //vel.Linear.z = smooth180.OriginalVelocity.z * SmoothVelocity(tweenRotationSmooth);
 
                 var degressToRotate = tweenRotationSmooth * 180 - smooth180.DegreesRotated;
                 rotation.Value = RotateByDegrees(rotation.Value, heading.Value, degressToRotate);
@@ -53,7 +53,7 @@ public class RotateByDegreesSystem : SystemBase
             }).ScheduleParallel();
 
 
-
+        Dependency.Complete();
 
 
 
