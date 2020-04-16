@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
+using Unity.Transforms;
 
 public struct JumpHeight : IComponentData {
     public float Value;
@@ -31,6 +32,3 @@ public struct ColAngle : IComponentData {
 public struct OnGround : IComponentData {
     public bool Value;
 }
-
-[WriteGroup(typeof(PhysicsVelocity))]
-public struct WaitForRotationTag : IComponentData {}
