@@ -4,16 +4,19 @@ using Unity.Mathematics;
 using UnityEngine.InputSystem;
 using UnityEngine;
 
-public class InputProcessingSystem : SystemBase {
+public class InputProcessingSystem : SystemBase
+{
     private Keyboard keyboard;
     private Mouse mouse;
 
-    protected override void OnCreate() {
+    protected override void OnCreate()
+    {
         keyboard = Keyboard.current;
         mouse = Mouse.current;
     }
 
-    protected override void OnUpdate() {
+    protected override void OnUpdate()
+    {
 
         //===========================   Gather input    =============================
 
@@ -27,44 +30,56 @@ public class InputProcessingSystem : SystemBase {
         var scrollDir = -mouse.scroll.ReadValue().y / 200;
 
 
-            // TODO: Will be removed once the camera is imported in ECS
-            var cameraT = UnityEngine.Camera.main.transform;
-            var cameraFwd = cameraT.forward;
-            var cameraR = cameraT.right;
+        // TODO: Will be removed once the camera is imported in ECS
+        var cameraT = UnityEngine.Camera.main.transform;
+        var cameraFwd = cameraT.forward;
+        var cameraR = cameraT.right;
 
 
         // Heading indicates in which direction the player should move
-        Entities.ForEach((ref Heading heading, ref JumpForce gravity, in JumpHeight jumpHeight) => {
+        Entities
+            .WithAll<PlayerTag>()
+            .ForEach(
+                (ref Heading heading,
+                ref JumpForce jumpForce,
+                in JumpHeight jumpHeight,
+                in OnGround onGround) =>
+                {
 
-            var r_heading = HeadingRelativeToCamera();
-            r_heading = Normalize();
+                    var r_heading = HeadingRelativeToCamera();
+                    r_heading = Normalize();
 
-            //Debug.Log("The input values xDir: " + xDir + " and zDir: " + zDir);
+                    bool shouldCameraYUpdate = onGround.Value;
 
-            gravity.Value = spaceDown * jumpHeight.Value;
-            heading.Value = r_heading;
+                    jumpForce.Value = spaceDown * jumpHeight.Value;
+                    heading.Value = r_heading;
 
 
+                    //===========================  Simple helper functions    =============================    
+                    float2 HeadingRelativeToCamera()
+                    {
+                        var dir = (xDir * cameraFwd + zDir * cameraR);
+                        return new float2(dir.x, dir.z);
+                    }
 
-            //===========================  Simple helper functions    =============================    
-            float2 HeadingRelativeToCamera() {
-                var dir = (xDir * cameraFwd + zDir * cameraR);
-                return new float2(dir.x, dir.z);
-            }
+                    float2 Normalize()
+                    {
+                        return math.normalizesafe(r_heading, 0);
+                    }
 
-            float2 Normalize() {
-                return math.normalizesafe(r_heading, 0);
-            }
-
-        }).WithoutBurst().Run();
+                }).WithoutBurst().Run();
 
 
         // Updating components the UpdateCameraSystem needs to read 
         var mouseSensitivity = GetSingleton<MouseSensitivity>();
-        Entities.ForEach((ref PitchYaw pitchYaw, ref PlayerDistance playerDistance) => {
+        Entities.ForEach((ref PitchYaw pitchYaw, ref PlayerDistance playerDistance, ref CameraFOV cameraFOV) =>
+        {
+            bool input = xDir != 0 || zDir != 0;
+
+            cameraFOV.Value = input ? 69 : 70;
 
             pitchYaw.Value += mouseDir * mouseSensitivity.Value;
-            pitchYaw.Value.x = math.clamp(pitchYaw.Value.x, 5.5f, 8f);
+            pitchYaw.Value.x = math.clamp(pitchYaw.Value.x, 5.5f, 7.5f);
 
             playerDistance.Value += scrollDir;
             playerDistance.Value = math.clamp(playerDistance.Value, 5.5f, 15.5f);

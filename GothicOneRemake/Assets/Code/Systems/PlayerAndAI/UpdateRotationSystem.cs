@@ -67,6 +67,7 @@ public class UpdateRotationSystem : SystemBase
 
                     void AddSmooth180Rotation(float3 velocity)
                     {
+                        velocity.y = invertYVelocity(velocity.y);
                         buffer.AddComponent<Smooth180Rotation>(entityInQueryIndex, entity);
                         buffer.SetComponent(
                             entityInQueryIndex,
@@ -77,6 +78,15 @@ public class UpdateRotationSystem : SystemBase
                                 Duration = 0.4f
                             }
                         );
+                    }
+
+                    float invertYVelocity(float velocity)
+                    {
+                        if (velocity < 0)
+                        {
+                            return velocity / 6.5f;
+                        }
+                        return velocity * 6.5f;
                     }
 
                     quaternion RotateSmooth(quaternion rot, float2 direction)

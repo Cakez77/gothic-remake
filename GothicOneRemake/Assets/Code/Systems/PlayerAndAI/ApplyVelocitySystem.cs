@@ -44,126 +44,153 @@ public class ApplyVelocitySystem : SystemBase
                 in JumpForce jf,
                 in LocalToWorld ltw) =>
                 {
-                    // local copies 
+                    // local copies (makes debugging easier)
                     var linearVelocity = vel.Linear;
-                    var onGround = og.Value;
-                    var movementAcceleration = ma.Value;
+                    bool grounded = og.Value;
+                    float elapsedTime = ma.ElapsedTime;
+                    float accelerationDuration = ma.AccelerationDuration;
+                    float maxSpeed = ma.MaxSpeed;
+                    float resetTimer = ma.ResetTimer;
+                    float jumpForce = jf.Value;
                     var heading = h.Value;
-                    var localToWorld = ltw.Value;
-                    var 
+                    var forward = ltw.Forward;
+                    var position = ltw.Position;
+                    var up = ltw.Up;
+                    var right = ltw.Right;
 
                     // environment information 
-                    var groundNormal = ColliderCast(ltw.Position, ltw.Position + new float3(0, -0.75f, 0));
-                    float angle = Vector3.Angle(ltw.Up, groundNormal);
-                    var cross = math.cross(ltw.Right, groundNormal);
+                    var groundNormal = ColliderCast(position, position + new float3(0, -0.6f, 0));
+                    float angle = Vector3.Angle(up, groundNormal);
+                    var parallellGroundVector = math.cross(right, groundNormal);
 
                     // player states
-                    bool moving = math.length(heading.Value) > 0;
-                    bool grounded = math.length(groundNormal) > 0;
+                    bool haveHeading = math.length(heading) > 0;
+                    bool moving = haveHeading || elapsedTime > 0;
+                    bool lookingUp = parallellGroundVector.y >= 0;
+                    bool lookingDown = parallellGroundVector.y < 0;
+                    grounded = math.length(groundNormal) > 0;
                     bool inAir = !grounded;
-                    bool jumped = jumpForce.Value != 0;
+                    bool jumped = grounded && jumpForce != 0;
+                    bool notMoving = resetTimer > 0.15f;
+                    bool notMovingOnGround = notMoving && !jumped && grounded;
+                    bool shouldAddTime = elapsedTime < accelerationDuration && haveHeading;
+
+                    bool inMotionWithNoInput = !haveHeading && moving;
+                    bool movingUpOnRamp = moving && !jumped && grounded && lookingUp;
+                    bool movingDownOnRamp = moving && !jumped && grounded && lookingDown;
 
 
+                    // =============================== Logic =======================================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    if (moving)
+                    if (shouldAddTime)
                     {
-                        // Increment elapsed time
-                        if (movementAcceleration.ElapsedTime < movementAcceleration.AccelerationTime)
-                        {
-                            movementAcceleration.ElapsedTime += deltaTime;
-                        }
-
-                        // Reset reset timer
-                        movementAcceleration.ResetTimer = 0;
-
-                        // claculate speed based on elapsedTime
-                        var easeInCubicSpeed = movementAcceleration.ElapsedTime / movementAcceleration.AccelerationTime;
-                        easeInCubicSpeed *= easeInCubicSpeed * easeInCubicSpeed * movementAcceleration.MaxSpeed;
-
-                        // apply velocity based on speed
-                        vel.Linear.x = ltw.Forward.x * easeInCubicSpeed;
-                        vel.Linear.z = ltw.Forward.z * easeInCubicSpeed;
+                        addTime();
                     }
-                    else // No Input, start counting
+                    float speed = EaseInSpeedQuad(maxSpeed, elapsedTime / accelerationDuration);
+
+
+                    if (movingUpOnRamp)
                     {
-                        movementAcceleration.ResetTimer += deltaTime;
-
-                        var currentSpeed = math.length(new float3(vel.Linear.x, 0, vel.Linear.z));
-
-                        // apply velocity based on speed
-                        vel.Linear.x = ltw.Forward.x * currentSpeed;
-                        vel.Linear.z = ltw.Forward.z * currentSpeed;
+                        accelerateY(1f);
+                    }
+                    if (movingDownOnRamp)
+                    {
+                        accelerateY(6.5f);
+                    }
+                    if (jumped)
+                    {
+                        linearVelocity.y = jumpForce;
+                    }
+                    if (haveHeading)
+                    {
+                        resetCountdown();
+                        accelerate();
+                    }
+                    if (inMotionWithNoInput)
+                    {
+                        increaseResetTimer();
+                        accelerate();
+                    }
+                    if (notMoving)
+                    {
+                        decelerate();
+                        resetTime();
+                    }
+                    if (notMovingOnGround)
+                    {
+                        decelerateY();
                     }
 
+                    // ======================== camera =======================
 
-                    if (movementAcceleration.ResetTimer > 0.5f && moving == 0)
-                    {
-                        vel.Linear.x = math.lerp(vel.Linear.x, 0, 0.3f);
-                        vel.Linear.z = math.lerp(vel.Linear.z, 0, 0.3f);
-
-                        // Reset timer
-                        movementAcceleration.ElapsedTime = 0;
-                    }
-
-
-
-
+                    // Notify camera to update position
                     if (grounded)
                     {
-                        if (jumpForce.Value != 0) // We jumped
-                        {
-                            vel.Linear.y = jumpForce.Value;
-                        }
-                        else // We did not jump
-                        {
-                            if (cross.y < 0) // On a ramp looking down
-                            {
-                                if (moving == 0) // Standing
-                                {
-                                    vel.Linear.y = math.lerp(vel.Linear.y, moving * cross.y * 6.5f, 0.2f); //TODO Check if this is a good value
-                                }
-                                else // Moving
-                                {
-                                    vel.Linear.y = moving * cross.y * 6.5f; //TODO Check if this is a good value
-                                }
-                            }
-                            else // On ground or ramp looking up
-                            {
-                                vel.Linear.y = moving * cross.y; //TODO Check if this is a good value
+                        SetSingleton(new TakeoffHeight { Value = position.y + 0.7f });
+                    }
+                    
+                    // ======================= write back ========================
+                    vel.Linear = linearVelocity;
+                    og.Value = grounded;
+                    ma.ElapsedTime = elapsedTime;
+                    ma.ResetTimer = resetTimer;
 
 
-                            }
 
-                        }
+
+
+
+
+
+
+
+
+
+                    //================= helper functions ===================
+
+                    void decelerate()
+                    {
+                        linearVelocity.x = math.lerp(linearVelocity.x, 0, 0.1f);
+                        linearVelocity.z = math.lerp(linearVelocity.z, 0, 0.1f);
                     }
 
-                    onGround.Value = grounded;
+                    void resetTime()
+                    {
+                        elapsedTime = 0;
+                    }
 
+                    void increaseResetTimer()
+                    {
+                        resetTimer += deltaTime;
+                    }
+
+                    void accelerate()
+                    {
+                        linearVelocity.x = forward.x * speed;
+                        linearVelocity.z = forward.z * speed;
+                    }
+
+                    void resetCountdown()
+                    {
+                        resetTimer = 0;
+                    }
+
+                    void addTime()
+                    {
+                        elapsedTime += deltaTime;
+                    }
+
+                    void accelerateY(float intensity)
+                    {
+                        linearVelocity.y = elapsedTime / accelerationDuration * parallellGroundVector.y * intensity;
+                    }
+
+                    void decelerateY()
+                    {
+                        linearVelocity.y = math.lerp(linearVelocity.y, 0, 0.1f);
+                    }
 
                 }).WithoutBurst().Run();
-
-
-
 
         m_EndSimulationSystem.AddJobHandleForProducer(Dependency);
 
@@ -208,6 +235,11 @@ public class ApplyVelocitySystem : SystemBase
             }
 
             return float3.zero;
+        }
+
+        float EaseInSpeedQuad(float speed, float time)
+        {
+            return speed * time * time;
         }
     }
 }

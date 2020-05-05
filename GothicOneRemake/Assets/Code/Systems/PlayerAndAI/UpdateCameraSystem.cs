@@ -5,40 +5,65 @@ using Unity.Transforms;
 using UnityEngine;
 
 
-public class UpdateCameraSystem : SystemBase {
+public class UpdateCameraSystem : SystemBase
+{
 
-    protected override void OnUpdate() {
+    protected override void OnUpdate()
+    {
 
-        var cameraT = UnityEngine.Camera.main.transform;
+        var mainCamera = UnityEngine.Camera.main;
         var rotationSmoothnes = GetSingleton<RotationSmothnes>();
 
         // Get the player position and direction, and change his rotation
         Entities.WithAll<CameraTargetTag>().ForEach(
-            (ref Rotation rotation,
-            in PitchYaw pitchYaw,
+            (ref Rotation r,
+            in CameraFOV fov,
+            in PitchYaw py,
             in LocalToWorld ltw,
-            in PlayerDistance playerDistance) => {
+            in PlayerDistance pd,
+            in TakeoffHeight th) =>
+            {
+                var rotation = r.Value;
+                var fieldOfViewValue = fov.Value;
+                var pitchYaw = py.Value;
+                var position = ltw.Position;
+                var forward = math.forward(rotation);
+                float distanceToPlayer = pd.Value;
+                float takeoffHeight = th.Value;
+                bool falling = position.y < takeoffHeight;
 
-                    // TODO: Will be changed/removed once the camera is fully integrated in ESC
-                    // THIS LINE IS THE PROBLEM
-                    var targetPosition = ltw.Position + math.forward(rotation.Value) * -playerDistance.Value;
-                    cameraT.position = targetPosition;
-                    cameraT.rotation = rotation.Value;
+                if (!falling)
+                {
+                    position.y = takeoffHeight;
+                }
 
-                var currentRotation = rotation.Value;
-                var targetRotation = GetTargetRotation(pitchYaw.Value);
+                var targetPosition = positionCamera();
+                var targetRotation = rotateByPitchAndYaw();
 
-                rotation.Value = RotateSmooth(targetRotation);
+                // TODO: Will be changed/removed once the camera is fully integrated in ESC
+                // THIS LINE IS THE PROBLEM
+
+                mainCamera.transform.position = targetPosition;
+                mainCamera.transform.rotation = rotation;
+                mainCamera.fieldOfView = math.lerp(mainCamera.fieldOfView, fieldOfViewValue, 0.1f);
+
+
+                // ======================= write back ========================
+                r.Value = targetRotation;
+
 
 
 
                 //===========================  Helper Functions    =============================
-                quaternion RotateSmooth(float3 targetRot) {
-                    return math.slerp(currentRotation, quaternion.Euler(targetRotation), rotationSmoothnes.Value);
+                Vector3 positionCamera()
+                {
+                    return position + forward * -distanceToPlayer;
                 }
 
-                float3 GetTargetRotation(float2 _pichYaw) {
-                    return new float3(_pichYaw.x, _pichYaw.y, 0f);
+                quaternion rotateByPitchAndYaw()
+                {
+                    var targetRot = new float3(pitchYaw.x, pitchYaw.y, 0f);
+                    return math.slerp(rotation, quaternion.Euler(targetRot), rotationSmoothnes.Value);
                 }
 
             }).WithoutBurst().Run();

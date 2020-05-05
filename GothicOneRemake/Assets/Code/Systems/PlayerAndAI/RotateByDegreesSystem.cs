@@ -30,6 +30,8 @@ public class RotateByDegreesSystem : SystemBase
             ref Smooth180Rotation smooth180,
             in Heading heading) =>
             {
+                var originalVelocity = smooth180.OriginalVelocity;
+
                 if (smooth180.ElapsedTime < smooth180.Duration)
                 {
                     smooth180.ElapsedTime += deltaTime;
@@ -44,7 +46,7 @@ public class RotateByDegreesSystem : SystemBase
                 var tweenRotationSmooth = smooth180.ElapsedTime / smooth180.Duration;
 
                 // Tween the velocity
-                vel.Linear = smooth180.OriginalVelocity * SmoothVelocity(tweenRotationSmooth);
+                vel.Linear = originalVelocity * SmoothVelocity(tweenRotationSmooth);
                 //vel.Linear.z = smooth180.OriginalVelocity.z * SmoothVelocity(tweenRotationSmooth);
 
                 var degressToRotate = tweenRotationSmooth * 180 - smooth180.DegreesRotated;

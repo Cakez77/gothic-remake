@@ -12,3 +12,13 @@ public struct RotationSpeed : IComponentData {
 public struct PlayerDistance : IComponentData {
     public float Value;
 }
+
+public struct CameraFOV : IComponentData
+{
+    public float Value;
+}
+
+public struct TakeoffHeight : IComponentData
+{
+    public float Value;
+}

@@ -1,7 +1,5 @@
 ﻿using Unity.Entities;
 using UnityEngine;
-using Unity.Physics;
-using Unity.Mathematics;
 
 public class PlayerAndAIComponents : MonoBehaviour, IConvertGameObjectToEntity {
 
@@ -13,14 +11,6 @@ public class PlayerAndAIComponents : MonoBehaviour, IConvertGameObjectToEntity {
 
     public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem conversionSystem) {
 
-        var playerAndUIArchetype = entityManager.CreateArchetype( 
-            typeof(JumpHeight),
-            typeof(Heading),
-            typeof(ColAngle),
-            typeof(JumpForce),
-            typeof(OnGround),
-            typeof(MovementAcceleration));
-
         entityManager.AddComponent(entity, typeof(JumpHeight));
         entityManager.AddComponent(entity, typeof(Heading));
         entityManager.AddComponent(entity, typeof(ColAngle));
@@ -29,7 +19,7 @@ public class PlayerAndAIComponents : MonoBehaviour, IConvertGameObjectToEntity {
         entityManager.AddComponent(entity, typeof(MovementAcceleration));
 
 
-        entityManager.SetComponentData(entity, new MovementAcceleration { AccelerationTime = 1.5f, MaxSpeed = movementSpeed });
+        entityManager.SetComponentData(entity, new MovementAcceleration { AccelerationDuration = 1.5f, MaxSpeed = movementSpeed });
         entityManager.SetComponentData(entity, new JumpHeight { Value = jumpHeight });
         entityManager.SetComponentData(entity, new ColAngle { Value = -1 });
     }
