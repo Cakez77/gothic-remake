@@ -42,17 +42,14 @@ public class InputProcessingSystem : SystemBase
             .ForEach(
                 (ref Heading heading,
                 ref JumpForce jumpForce,
-                in JumpHeight jumpHeight,
-                in OnGround onGround) =>
+                in JumpHeight jumpHeight) =>
                 {
 
-                    var r_heading = HeadingRelativeToCamera();
-                    r_heading = Normalize();
-
-                    bool shouldCameraYUpdate = onGround.Value;
+                    var relativeHeading = HeadingRelativeToCamera();
+                    relativeHeading = Normalize();
 
                     jumpForce.Value = spaceDown * jumpHeight.Value;
-                    heading.Value = r_heading;
+                    heading.Value = relativeHeading;
 
 
                     //===========================  Simple helper functions    =============================    
@@ -64,7 +61,7 @@ public class InputProcessingSystem : SystemBase
 
                     float2 Normalize()
                     {
-                        return math.normalizesafe(r_heading, 0);
+                        return math.normalizesafe(relativeHeading, 0);
                     }
 
                 }).WithoutBurst().Run();

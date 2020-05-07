@@ -32,35 +32,37 @@ namespace VelocityStateMachine
             Standing = new VelocityState
             {
                 Name = VelocityStates.Standing,
-                VelocityFunction = Stand
+                VelocityFunction = Stand,
+                Time = 0f
             };
 
             Running = new VelocityState
             {
                 Name = VelocityStates.Running,
-                VelocityFunction = Run
+                VelocityFunction = Run,
+                Time = 0f
             };
 
             Jumping = new VelocityState
             {
                 Name = VelocityStates.Jumping,
-                VelocityFunction = Jump
+                VelocityFunction = Jump,
+                Time = 0f
             };
 
             Falling = new VelocityState
             {
                 Name = VelocityStates.Falling,
-                VelocityFunction = Fall
-
+                VelocityFunction = Fall,
+                Time = 0f
             };
 
-            _transitions = new NativeArray<VelocityState>(new VelocityState[16]
-                {// Run         Stand       Jump        Fall
-                    Running,    Standing,   Jumping,    Falling,// Standing
-                    Running,    Standing,   Jumping,    Falling,// Running
-                    Jumping,    Standing,   Jumping,    Falling,// Jumping
-                    Falling,    Standing,   Falling,    Falling // Falling
-                }, Allocator.Persistent);
+            _transitions = new NativeArray<VelocityState>(
+                new VelocityState[4]
+                {
+                    Running,    Standing,   Jumping,    Falling,
+                },
+                Allocator.Persistent);
         }
 
 
