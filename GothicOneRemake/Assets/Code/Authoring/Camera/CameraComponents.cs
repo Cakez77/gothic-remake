@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using UnityEngine;
+using VelocityStateMachine;
 
 public class CameraComponents : MonoBehaviour, IConvertGameObjectToEntity {
 

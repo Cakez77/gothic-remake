@@ -3,8 +3,8 @@ using UnityEngine;
 using Unity.Physics;
 using Unity.Mathematics;
 using Unity.Transforms;
+using VelocityStateMachine;
 
-[UpdateAfter(typeof(TransformSystemGroup))]
 public class UpdateRotationSystem : SystemBase
 {
     EndSimulationEntityCommandBufferSystem endSimulationECBSystem;
@@ -27,8 +27,7 @@ public class UpdateRotationSystem : SystemBase
                 (Entity entity,
                 int entityInQueryIndex,
                 ref Rotation rotation,
-                ref Heading heading,
-                ref PhysicsVelocity vel) =>
+                in Heading heading) =>
                 {
                     var dir = heading.Value;
                     var magnitude = GetDirectionalMagnitude(dir);
@@ -39,14 +38,14 @@ public class UpdateRotationSystem : SystemBase
                         var forward = math.forward(rotation.Value);
                         var angle = CalculateAngle(forward, dir);
 
-                        if (angle > 150)
-                        {
-                            AddSmooth180Rotation(vel.Linear);
-                        }
-                        else
-                        {
-                            rotation.Value = RotateSmooth(rotation.Value, dir);
-                        }
+                        //if (angle > 150)
+                        //{
+                        //    AddSmooth180Rotation(vel.Linear);
+                        //}
+                        //else
+                        //{
+                        rotation.Value = RotateSmooth(rotation.Value, dir);
+                        //}
                     }
 
 

@@ -3,7 +3,9 @@ using Unity.Mathematics;
 using UnityEngine;
 using Unity.Transforms;
 using Unity.Physics;
+using VelocityStateMachine;
 
+[DisableAutoCreation]
 [UpdateAfter(typeof(UpdateRotationSystem))]
 public class RotateByDegreesSystem : SystemBase
 {

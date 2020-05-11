@@ -11,17 +11,16 @@ namespace VelocityStateMachine
         private CollisionWorld _collisionWorld;
         private BuildPhysicsWorld _buildPhysicsWorld;
 
-        protected override void OnCreate()
+        protected override void OnStartRunning()
         {
-            base.OnCreate();
+            base.OnStartRunning();
 
-            _buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+            _buildPhysicsWorld = World.GetExistingSystem<BuildPhysicsWorld>();
             _collisionWorld = _buildPhysicsWorld.PhysicsWorld.CollisionWorld;
         }
 
         protected override void OnUpdate()
         {
-            var collisionWorld = _collisionWorld;
 
             Entities.ForEach(
                 (ref GroundNormal groundNormal,
@@ -29,52 +28,53 @@ namespace VelocityStateMachine
                 in LocalToWorld ltw) =>
                 {
                     var position = ltw.Position;
-                    var normal = ColliderCast(position, position + new float3(0f, -0.6f, 0f), collisionWorld);
+                    var normal = ColliderCast(position, position + new float3(0f, -0.6f, 0f));
                     bool grounded = math.length(normal) > 0;
 
 
                     groundNormal.Value = normal;
                     onGround.Value = grounded;
 
-                }).Schedule();
+                }).WithoutBurst().Run();
         }
 
-        private unsafe float3 ColliderCast(float3 rayFrom, float3 rayTo, CollisionWorld collisionWorld)
-        {
 
-            CollisionFilter filter = new CollisionFilter
+        private unsafe float3 ColliderCast(float3 rayFrom, float3 rayTo)
             {
-                BelongsTo = 0b_1u, // Layer 0
-                CollidesWith = 0b_100u, // Layer 2
-                GroupIndex = 0
-            };
 
-            SphereGeometry sphere = new SphereGeometry
-            {
-                Center = float3.zero,
-                Radius = 0.5f
-            };
+                CollisionFilter filter = new CollisionFilter
+                {
+                    BelongsTo = 0b_1u, // Layer 0
+                    CollidesWith = 0b_100u, // Layer 2
+                    GroupIndex = 0
+                };
 
-            BlobAssetReference<Unity.Physics.Collider> collider = Unity.Physics.SphereCollider.Create(sphere, filter);
+                SphereGeometry sphere = new SphereGeometry
+                {
+                    Center = float3.zero,
+                    Radius = 0.5f
+                };
 
-            ColliderCastInput input = new ColliderCastInput
-            {
-                Collider = (Unity.Physics.Collider*) collider.GetUnsafePtr(),
-                Orientation = quaternion.identity,
-                Start = rayFrom,
-                End = rayTo
-            };
+                BlobAssetReference<Unity.Physics.Collider> collider = Unity.Physics.SphereCollider.Create(sphere, filter);
 
-            ColliderCastHit hit = new ColliderCastHit();
+                ColliderCastInput input = new ColliderCastInput
+                {
+                    Collider = (Unity.Physics.Collider*) collider.GetUnsafePtr(),
+                    Orientation = quaternion.identity,
+                    Start = rayFrom,
+                    End = rayTo
+                };
 
-            bool haveHit = collisionWorld.CastCollider(input, out hit);
+                ColliderCastHit hit = new ColliderCastHit();
 
-            if (haveHit)
-            {
-                return hit.SurfaceNormal;
+                bool haveHit = _collisionWorld.CastCollider(input, out hit);
+
+                if (haveHit)
+                {
+                    return hit.SurfaceNormal;
+                }
+
+                return float3.zero;
             }
-
-            return float3.zero;
-        }
     }
 }

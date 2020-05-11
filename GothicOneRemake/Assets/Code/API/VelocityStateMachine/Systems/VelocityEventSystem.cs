@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 using Unity.Entities;
+using Unity.Transforms;
 
 namespace VelocityStateMachine
 {
@@ -10,7 +10,8 @@ namespace VelocityStateMachine
         {
             Entities.ForEach(
                 (ref VelocityEvent velocityEvent,
-                in VelocityState velocityState,
+                in TakeoffHeight takeoff,
+                in LocalToWorld ltw,
                 in OnGround onGround,
                 in Heading heading,
                 in JumpForce jumpForce) =>
@@ -18,12 +19,12 @@ namespace VelocityStateMachine
                     bool G = onGround.Value;
                     bool H = math.length(heading.Value) > 0;
                     bool J = math.length(jumpForce.Value) > 0;
-                    bool F = false; // TODO Add support for falling
+                    bool F = ltw.Position.y < takeoff.Value;
 
                     velocityEvent.Value = EventTable(G, F, H, J);
 
                     
-                });
+                }).Schedule();
 
             VelocityEvents EventTable(bool G, bool F, bool H, bool J)
             {

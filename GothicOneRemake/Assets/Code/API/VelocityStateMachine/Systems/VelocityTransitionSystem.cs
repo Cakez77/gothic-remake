@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Unity.Transforms;
 using System;
 using Unity.Burst;
 using Unity.Collections;
@@ -24,43 +24,51 @@ namespace VelocityStateMachine
         {
             base.OnStartRunning();
 
-            Stand = CompileFunction(VelocityStates.Standing);
-            Run = CompileFunction(VelocityStates.Running);
-            Jump = CompileFunction(VelocityStates.Running);
-            Fall = CompileFunction(VelocityStates.Standing);
+            Stand = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Stand);
+
+            Run = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Run);
+
+            Jump = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Jump);
+
+            Fall = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Fall);
+
 
             Standing = new VelocityState
             {
                 Name = VelocityStates.Standing,
                 VelocityFunction = Stand,
-                Time = 0f
+                Time = 0f,
+                Duration = 0.3f
             };
 
             Running = new VelocityState
             {
                 Name = VelocityStates.Running,
                 VelocityFunction = Run,
-                Time = 0f
+                Time = 0f,
+                Duration = 1.5f
             };
 
             Jumping = new VelocityState
             {
                 Name = VelocityStates.Jumping,
                 VelocityFunction = Jump,
-                Time = 0f
+                Time = 0f,
+                Duration = 0.01f
             };
 
             Falling = new VelocityState
             {
                 Name = VelocityStates.Falling,
                 VelocityFunction = Fall,
-                Time = 0f
+                Time = 0f,
+                Duration = 0.5f
             };
 
             _transitions = new NativeArray<VelocityState>(
                 new VelocityState[4]
                 {
-                    Running,    Standing,   Jumping,    Falling,
+                    Standing, Running, Jumping, Falling,
                 },
                 Allocator.Persistent);
         }
@@ -71,14 +79,26 @@ namespace VelocityStateMachine
             var numberOfEvents = Enum.GetNames(typeof(VelocityEvents)).Length;
             var velTransitions = _transitions;
 
-            Entities.ForEach((ref VelocityState currentState, in VelocityEvent velocityEvent) =>
+            Entities.ForEach((ref VelocityState currentState, ref TakeoffHeight takeoffHeight, in LocalToWorld ltw, in VelocityEvent velocityEvent) =>
             {
-                var nextState = velTransitions[(int) currentState.Name * numberOfEvents + (int) velocityEvent.Value];
+                var nextState = velTransitions[(int) velocityEvent.Value];
 
                 if (nextState.Name != currentState.Name) // transition
                 {
                     currentState = nextState;
+
+                    switch (nextState.Name) // OnStartRunning
+                    {
+                        case VelocityStates.Jumping:
+                            takeoffHeight.Value = ltw.Position.y;
+                            break;
+
+                        case VelocityStates.Falling:
+                            takeoffHeight.Value = ltw.Position.y;
+                            break;
+                    }
                 }
+
             }).Schedule();
         }
 
@@ -102,6 +122,13 @@ namespace VelocityStateMachine
                     return BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Stand);
 
             }
+        }
+
+        protected override void OnStopRunning()
+        {
+            base.OnStopRunning();
+
+            _transitions.Dispose();
         }
     }
 }

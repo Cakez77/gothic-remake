@@ -3,6 +3,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using VelocityStateMachine;
 
 
 public class UpdateCameraSystem : SystemBase

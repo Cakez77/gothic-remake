@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace VelocityStateMachine
 {
-    public delegate float3 ProcessVelocity(float3 linearVelocity, float3 forward, float t, float speed = 0f, float height = 0f);
+    public delegate float3 ProcessVelocity(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed = 0f, float height = 0f);
 
     [BurstCompile]
     public static class VelocityFunctions
@@ -13,37 +13,18 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Run(float3 linearVelocity, float3 forward, float t, float speed, float height = 0f)
+        public static float3 Run(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed, float height = 0f)
         {
-            // check if supplied time is too low
+            float slope = math.cross(right, normal).y;
             float newXVel = forward.x * speed * t * t;
-            float newYVel = forward.z * speed * t * t;
+            float newZVel = forward.z * speed * t * t;
 
-            float additionalTime = 0f;
-            bool timeIsTooLow = newXVel < linearVelocity.x;
-
-            if (timeIsTooLow)
-            {
-                additionalTime = linearVelocity.x / (forward.x * speed);
-                t += additionalTime;
-            }
-
-            if (t > 1)
-            {
-                t = 1;
-            }
-
-            if (forward.y < 0)
-            {
-                linearVelocity = PushPlayerUp(linearVelocity, forward, t, speed, height);
-            }
-            else
-            {
-                linearVelocity = PushPlayerDown(linearVelocity, forward, t, speed, height);
-            }
+            // check if supplied time is too low
+            t = MakeTimeCorrect(linearVelocity.x, newXVel, t, forward.x, speed);
 
             linearVelocity.x = newXVel;
-            linearVelocity.z = newYVel;
+            linearVelocity.y = AllignWithSlope(slope, t, speed);
+            linearVelocity.z = newZVel;
 
             return linearVelocity;
         }
@@ -52,27 +33,38 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Stand(float3 linearVelocity, float3 forward, float t, float speed = 0f, float height = 0f)
+        public static float3 Stand(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed = 0f, float height = 0f)
         {
             t = 1 - t; // inverse, this is ease out quad
 
-            linearVelocity.x *= forward.x * t * t;
-            linearVelocity.x *= forward.x * t * t;
+            float slope = math.cross(right, normal).y;
+
+            linearVelocity.x = forward.x * t * t;
+            linearVelocity.y = AllignWithSlope(slope, t, speed);
+            linearVelocity.z = forward.z * t * t;
 
             return linearVelocity;
         }
 
-        public static float3 Jump(float3 linearVelocity, float3 forward, float t, float speed = 0f, float height = 0f)
+        /**
+         * 
+         */
+        [BurstCompile]
+        public static float3 Jump(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed = 0f, float height = 0f)
         {
             // TODO: Implement a nice jump based on time and an easing function.
-            if (t == 0)
+            if (t == 1)
             {
                 linearVelocity.y = height;
             }
             return linearVelocity;
         }
 
-        public static float3 Fall(float3 linearVelocity, float3 forward, float t, float speed = 0f, float height = 0f)
+        /**
+         * 
+         */
+        [BurstCompile]
+        public static float3 Fall(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed = 0f, float height = 0f)
         {
             linearVelocity.x = forward.x * _airSpeed * t;
             linearVelocity.z = forward.z * _airSpeed * t;
@@ -80,18 +72,33 @@ namespace VelocityStateMachine
             return linearVelocity;
         }
 
-        public static float3 PushPlayerUp(float3 linearVelocity, float3 forward, float t, float speed = 0f, float height = 0f)
+        public static float AllignWithSlope(float slope, float t, float speed)
         {
-            linearVelocity.y = forward.y * speed * t * t * 6.1f; // Magic number, additional gravity
-
-            return linearVelocity;
+            float pushFactor = 6.1f;
+            if (slope > 0)
+            {
+                pushFactor = 2.1f;
+            }
+            return slope * speed * t * t * pushFactor; // Magic number, additional gravity
         }
 
-        public static float3 PushPlayerDown(float3 linearVelocity, float3 forward, float t, float speed = 0f, float height = 0f)
+        private static float MakeTimeCorrect(float currentVelocity, float newVelocity, float t, float forward, float speed)
         {
-            linearVelocity.y = forward.y * speed * t * t * 2.1f; // Magic number, additional gravity
+            float additionalTime = 0f;
+            bool timeIsTooLow = newVelocity < currentVelocity;
 
-            return linearVelocity;
+            if (timeIsTooLow)
+            {
+                additionalTime = currentVelocity / (forward * speed);
+                t += additionalTime;
+            }
+
+            if (t > 1)
+            {
+                t = 1;
+            }
+
+            return t;
         }
     }
 }
