@@ -33,12 +33,10 @@ using VelocityStateMachine;
                     }
                     linearVelocity = velocityState.VelocityFunction.Invoke(linearVelocity, 
                         ltw.Forward, ltw.Right, normal.Value, time, movementSpeed.Value, jumpForce.Value);
-                    
-                    Debug.Log(linearVelocity);
 
                     physicsVelocity.Linear = linearVelocity;
 
-                }).WithoutBurst().Run();
+                }).Schedule();
         }
     }
 //}

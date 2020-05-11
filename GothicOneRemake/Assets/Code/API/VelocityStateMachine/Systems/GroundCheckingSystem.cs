@@ -25,12 +25,17 @@ namespace VelocityStateMachine
             Entities.ForEach(
                 (ref GroundNormal groundNormal,
                 ref OnGround onGround,
+                ref TakeoffHeight takeoff,
                 in LocalToWorld ltw) =>
                 {
                     var position = ltw.Position;
                     var normal = ColliderCast(position, position + new float3(0f, -0.6f, 0f));
                     bool grounded = math.length(normal) > 0;
 
+                    if (grounded)
+                    {
+                        takeoff.Value = ltw.Position.y;
+                    }
 
                     groundNormal.Value = normal;
                     onGround.Value = grounded;

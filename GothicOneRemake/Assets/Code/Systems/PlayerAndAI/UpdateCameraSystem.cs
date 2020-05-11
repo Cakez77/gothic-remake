@@ -17,54 +17,50 @@ public class UpdateCameraSystem : SystemBase
 
         // Get the player position and direction, and change his rotation
         Entities.WithAll<CameraTargetTag>().ForEach(
-            (ref Rotation r,
-            in CameraFOV fov,
-            in PitchYaw py,
+            (ref Rotation rotation,
+            in CameraFOV cameraFOV,
+            in PitchYaw pitchYaw,
             in LocalToWorld ltw,
-            in PlayerDistance pd,
-            in TakeoffHeight th) =>
+            in PlayerDistance distanceToPlayer,
+            in TakeoffHeight takeoff) =>
             {
-                var rotation = r.Value;
-                var fieldOfViewValue = fov.Value;
-                var pitchYaw = py.Value;
-                var position = ltw.Position;
-                var forward = math.forward(rotation);
-                float distanceToPlayer = pd.Value;
-                float takeoffHeight = th.Value;
-                bool falling = position.y < takeoffHeight;
+                var playerPosition = ltw.Position;
+                var playerForward = math.forward(rotation.Value);
+                bool playerFalling = playerPosition.y < takeoff.Value;
 
-                if (!falling)
+
+                if (!playerFalling)
                 {
-                    position.y = takeoffHeight;
+                    playerPosition.y = takeoff.Value;
                 }
 
-                var targetPosition = positionCamera();
-                var targetRotation = rotateByPitchAndYaw();
+                var targetPosition = PositionCamera(playerPosition, playerForward, distanceToPlayer.Value);
+                var targetRotation = Rotate(pitchYaw.Value, rotation.Value);
 
                 // TODO: Will be changed/removed once the camera is fully integrated in ESC
                 // THIS LINE IS THE PROBLEM
 
                 mainCamera.transform.position = targetPosition;
-                mainCamera.transform.rotation = rotation;
-                mainCamera.fieldOfView = math.lerp(mainCamera.fieldOfView, fieldOfViewValue, 0.1f);
+                mainCamera.transform.rotation = rotation.Value;
+                mainCamera.fieldOfView = math.lerp(mainCamera.fieldOfView, cameraFOV.Value, 0.1f);
 
 
                 // ======================= write back ========================
-                r.Value = targetRotation;
+                rotation.Value = targetRotation;
 
 
 
 
                 //===========================  Helper Functions    =============================
-                Vector3 positionCamera()
+                Vector3 PositionCamera(float3 p, float3 f, float distance)
                 {
-                    return position + forward * -distanceToPlayer;
+                    return p + f * -distance;
                 }
 
-                quaternion rotateByPitchAndYaw()
+                quaternion Rotate(float2 py, quaternion r)
                 {
-                    var targetRot = new float3(pitchYaw.x, pitchYaw.y, 0f);
-                    return math.slerp(rotation, quaternion.Euler(targetRot), rotationSmoothnes.Value);
+                    var targetRot = new float3(py.x, py.y, 0f);
+                    return math.slerp(r, quaternion.Euler(targetRot), rotationSmoothnes.Value);
                 }
 
             }).WithoutBurst().Run();

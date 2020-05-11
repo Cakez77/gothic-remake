@@ -86,17 +86,6 @@ namespace VelocityStateMachine
                 if (nextState.Name != currentState.Name) // transition
                 {
                     currentState = nextState;
-
-                    switch (nextState.Name) // OnStartRunning
-                    {
-                        case VelocityStates.Jumping:
-                            takeoffHeight.Value = ltw.Position.y;
-                            break;
-
-                        case VelocityStates.Falling:
-                            takeoffHeight.Value = ltw.Position.y;
-                            break;
-                    }
                 }
 
             }).Schedule();
