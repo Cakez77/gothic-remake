@@ -32,6 +32,5 @@ public class PlayerAndAIComponents : MonoBehaviour, IConvertGameObjectToEntity
         entityManager.SetComponentData(entity, new JumpHeight { Value = jumpHeight });
         entityManager.SetComponentData(entity, new MovementSpeed { Value = movementSpeed });
         entityManager.SetComponentData(entity, new ColAngle { Value = -1 });
-        entityManager.SetComponentData(entity, new VelocityState { Name = VelocityStates.Standing, VelocityFunction = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Stand) });
     }
 }

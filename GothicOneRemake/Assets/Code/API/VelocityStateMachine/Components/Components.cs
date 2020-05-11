@@ -44,7 +44,11 @@ namespace VelocityStateMachine
 
     public struct GroundNormal : IComponentData
     {
-        public float3 Value;
+        public float3 Value
+        {
+            get;
+            set;
+        }
     }
 
     public struct TakeoffHeight : IComponentData

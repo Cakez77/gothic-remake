@@ -3,9 +3,10 @@ using UnityEngine;
 using Unity.Transforms;
 using Unity.Physics;
 using Unity.Jobs;
+using VelocityStateMachine;
 
-namespace VelocityStateMachine
-{
+//namespace VelocityStateMachine
+//{
     public class ApplyVelocitySystem : SystemBase
     {
         protected override void OnUpdate()
@@ -40,4 +41,4 @@ namespace VelocityStateMachine
                 }).WithoutBurst().Run();
         }
     }
-}
+//}

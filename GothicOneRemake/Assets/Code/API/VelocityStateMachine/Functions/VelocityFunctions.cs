@@ -3,7 +3,14 @@ using Unity.Mathematics;
 
 namespace VelocityStateMachine
 {
-    public delegate float3 ProcessVelocity(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed = 0f, float height = 0f);
+    public delegate float3 ProcessVelocity(
+        float3 linearVelocity, 
+        float3 forward, 
+        float3 right, 
+        float3 normal, 
+        float t, 
+        float speed, 
+        float height);
 
     [BurstCompile]
     public static class VelocityFunctions
@@ -13,7 +20,14 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Run(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed, float height = 0f)
+        public static float3 Run(
+            float3 linearVelocity, 
+            float3 forward, 
+            float3 right, 
+            float3 normal, 
+            float t, 
+            float speed, 
+            float height)
         {
             float slope = math.cross(right, normal).y;
             float newXVel = forward.x * speed * t * t;
@@ -33,7 +47,14 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Stand(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed = 0f, float height = 0f)
+        public static float3 Stand(
+            float3 linearVelocity, 
+            float3 forward, 
+            float3 right, 
+            float3 normal, 
+            float t, 
+            float speed, 
+            float height)
         {
             t = 1 - t; // inverse, this is ease out quad
 
@@ -50,7 +71,14 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Jump(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed = 0f, float height = 0f)
+        public static float3 Jump(
+            float3 linearVelocity, 
+            float3 forward, 
+            float3 right, 
+            float3 normal, 
+            float t, 
+            float speed, 
+            float height)
         {
             // TODO: Implement a nice jump based on time and an easing function.
             if (t == 1)
@@ -64,7 +92,14 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Fall(float3 linearVelocity, float3 forward, float3 right, float3 normal, float t, float speed = 0f, float height = 0f)
+        public static float3 Fall(
+            float3 linearVelocity, 
+            float3 forward, 
+            float3 right, 
+            float3 normal, 
+            float t, 
+            float speed, 
+            float height)
         {
             linearVelocity.x = forward.x * _airSpeed * t;
             linearVelocity.z = forward.z * _airSpeed * t;
