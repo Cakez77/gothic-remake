@@ -29,18 +29,21 @@ namespace VelocityStateMachine
             float speed,
             float height)
         {
-            float slope = math.cross(right, normal).y;
-            float newXVel = forward.x * speed * t * t;
-            float newZVel = forward.z * speed * t * t;
-
             // check if supplied time is too low
-            t = MakeTimeCorrect(linearVelocity.x, newXVel, t, forward.x, speed);
+            t = MakeTimeCorrect(linearVelocity.x, t, forward.x, speed);
 
-            linearVelocity.x = newXVel;
-            linearVelocity.y = AllignWithSlope(slope, t, speed);
-            linearVelocity.z = newZVel;
+            return WalkOnGround(linearVelocity, forward, right, normal, speed, t);
+        }
 
-            return linearVelocity;
+        private static float3 WalkOnGround(float3 vel, float3 forward, float3 right, float3 normal, float speed, float t)
+        {
+            float slope = math.cross(right, normal).y;
+
+            vel.x = forward.x * speed * t * t;
+            vel.y = AllignWithSlope(slope, t, speed);
+            vel.z = forward.z * speed * t * t;
+
+            return vel;
         }
 
         /**
@@ -58,13 +61,7 @@ namespace VelocityStateMachine
         {
             t = 1 - t; // inverse, this is ease out quad
 
-            float slope = math.cross(right, normal).y;
-
-            linearVelocity.x = forward.x * speed * t * t;
-            linearVelocity.y = AllignWithSlope(slope, t, speed);
-            linearVelocity.z = forward.z * speed * t * t;
-
-            return linearVelocity;
+            return WalkOnGround(linearVelocity, forward, right, normal, speed, t);
         }
 
         /**
@@ -93,7 +90,7 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Fall(
+        public static float3 Fall(//TODO: Change in a way that speed will be air speed
             float3 linearVelocity,
             float3 forward,
             float3 right,
@@ -118,9 +115,11 @@ namespace VelocityStateMachine
             return slope * speed * t * t * pushFactor; // Magic number, additional gravity
         }
 
-        private static float MakeTimeCorrect(float currentVelocity, float newVelocity, float t, float forward, float speed)
+        private static float MakeTimeCorrect(float currentVelocity, float t, float forward, float speed)
         {
             float additionalTime = 0f;
+
+            float newVelocity = forward * speed * t * t;
             bool timeIsTooLow = newVelocity < currentVelocity;
 
             if (timeIsTooLow)
