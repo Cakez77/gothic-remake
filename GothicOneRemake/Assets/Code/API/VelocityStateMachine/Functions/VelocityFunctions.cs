@@ -3,11 +3,11 @@ using Unity.Mathematics;
 
 namespace VelocityStateMachine
 {
-    public delegate float3 ProcessVelocity(
-        float3 linearVelocity,
-        float3 forward,
-        float3 right,
-        float3 normal,
+    public unsafe delegate float3* ProcessVelocity(
+        float3* linearVelocity,
+        float3* forward,
+        float3* right,
+        float3* normal,
         float t,
         float speed,
         float height);
@@ -20,28 +20,28 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Run(
-            float3 linearVelocity,
-            float3 forward,
-            float3 right,
-            float3 normal,
+        public unsafe static float3* Run(
+            float3* linearVelocity,
+            float3* forward,
+            float3* right,
+            float3* normal,
             float t,
             float speed,
             float height)
         {
             // check if supplied time is too low
-            t = MakeTimeCorrect(linearVelocity.x, t, forward.x, speed);
+            t = MakeTimeCorrect(linearVelocity->x, t, forward->x, speed);
 
             return WalkOnGround(linearVelocity, forward, right, normal, speed, t);
         }
 
-        private static float3 WalkOnGround(float3 vel, float3 forward, float3 right, float3 normal, float speed, float t)
+        private unsafe static float3* WalkOnGround(float3* vel, float3* forward, float3* right, float3* normal, float speed, float t)
         {
-            float slope = math.cross(right, normal).y;
+            float slope = math.cross(*right, *normal).y;
 
-            vel.x = forward.x * speed * t * t;
-            vel.y = AllignWithSlope(slope, t, speed);
-            vel.z = forward.z * speed * t * t;
+            vel->x = forward->x * speed * t * t;
+            vel->y = AllignWithSlope(slope, t, speed);
+            vel->z = forward->z * speed * t * t;
 
             return vel;
         }

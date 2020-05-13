@@ -20,7 +20,7 @@ namespace VelocityStateMachine
         private VelocityState Jumping;
         private VelocityState Falling;
 
-        protected override void OnStartRunning()
+        protected unsafe override void OnStartRunning()
         {
             base.OnStartRunning();
 
@@ -91,7 +91,7 @@ namespace VelocityStateMachine
             }).Schedule();
         }
 
-        private FunctionPointer<ProcessVelocity> CompileFunction(VelocityStates state)
+        private unsafe FunctionPointer<ProcessVelocity> CompileFunction(VelocityStates state)
         {
             switch (state)
             {

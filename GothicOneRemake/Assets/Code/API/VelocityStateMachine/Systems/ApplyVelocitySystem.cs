@@ -1,5 +1,5 @@
 ﻿using Unity.Entities;
-using UnityEngine;
+using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Physics;
 using Unity.Jobs;
@@ -9,7 +9,7 @@ using VelocityStateMachine;
 //{
     public class ApplyVelocitySystem : SystemBase
     {
-        protected override void OnUpdate()
+        protected unsafe override void OnUpdate()
         {
             float deltaTime = Time.DeltaTime;
 
@@ -21,20 +21,30 @@ using VelocityStateMachine;
                 in JumpForce jumpForce,
                 in MovementSpeed movementSpeed) =>
                 {
-                    var linearVelocity = physicsVelocity.Linear;
+                    float3* linearVelPtr;
+                    fixed (PhysicsVelocity* vel = &physicsVelocity)
+                    {
+                        linearVelPtr = &vel->Linear;
+                    };
+
+                    LocalToWorld* ltwPointer;
+                    fixed (LocalToWorld* ltwPtr = &ltw)
+                    {
+                        ltwPointer = ltwPtr;
+                    }
+
                     float time = velocityState.Time;
 
                     time += deltaTime/velocityState.Duration;
                     velocityState.Time = time;
 
-                    if(time > 1) // At "1" the state reached "maximum"
+                    if(time > 1) //Past "1" the state reached "maximum"
                     {
                         time = 1;
                     }
-                    linearVelocity = velocityState.VelocityFunction.Invoke(linearVelocity, 
-                        ltw.Forward, ltw.Right, normal.Value, time, movementSpeed.Value, jumpForce.Value);
+                    physicsVelocity.Linear = velocityState.VelocityFunction.Invoke(linearVelPtr, 
+                        &ltwPointer->Forward, ltw.Right, normal.Value, time, movementSpeed.Value, jumpForce.Value);
 
-                    physicsVelocity.Linear = linearVelocity;
 
                 }).Schedule();
         }
