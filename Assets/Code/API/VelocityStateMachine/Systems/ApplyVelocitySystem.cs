@@ -4,39 +4,49 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Jobs;
 using VelocityStateMachine;
+using Unity.Mathematics;
+using Unity.Physics.Extensions;
 
 //namespace VelocityStateMachine
 //{
-    public class ApplyVelocitySystem : SystemBase
+public class ApplyVelocitySystem : SystemBase
+{
+    protected unsafe override void OnUpdate()
     {
-        protected override void OnUpdate()
-        {
-            float deltaTime = Time.DeltaTime;
+        float deltaTime = Time.DeltaTime;
 
-            Entities.ForEach(
-                (ref PhysicsVelocity physicsVelocity,
-                ref VelocityState velocityState,
+        Entities.ForEach(
+            (ref PhysicsVelocity physicsVelocity,
+            ref VelocityState velocityState,
                 in LocalToWorld ltw,
                 in GroundNormal normal,
                 in JumpForce jumpForce,
                 in MovementSpeed movementSpeed) =>
                 {
-                    var linearVelocity = physicsVelocity.Linear;
                     float time = velocityState.Time;
 
-                    time += deltaTime/velocityState.Duration;
+                    time += deltaTime / velocityState.Duration;
                     velocityState.Time = time;
 
-                    if(time > 1) // At "1" the state reached "maximum"
+                    if (time > 1) // At "1" the state reached "maximum"
                     {
                         time = 1;
                     }
-                    linearVelocity = velocityState.VelocityFunction.Invoke(linearVelocity, 
-                        ltw.Forward, ltw.Right, normal.Value, time, movementSpeed.Value, jumpForce.Value);
 
-                    physicsVelocity.Linear = linearVelocity;
+                    VelocityParams velocityParams = new VelocityParams
+                    {
+                        linearVelocity = physicsVelocity.Linear,
+                        forward = ltw.Forward,
+                        right = ltw.Right,
+                        normal = normal.Value,
+                        time = time,
+                        movementSpeed = movementSpeed.Value,
+                        jumpForce = jumpForce.Value
+                    };
+
+                    physicsVelocity.Linear = *velocityState.VelocityFunction.Invoke(&velocityParams);
 
                 }).Schedule();
-        }
     }
+}
 //}

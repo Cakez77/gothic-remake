@@ -3,36 +3,42 @@ using Unity.Mathematics;
 
 namespace VelocityStateMachine
 {
-    public delegate float3 ProcessVelocity(
-        float3 linearVelocity,
-        float3 forward,
-        float3 right,
-        float3 normal,
-        float t,
-        float speed,
-        float height);
+    public struct VelocityParams
+    {
+        public float3 linearVelocity;
+        public float3 forward;
+        public float3 right;
+        public float3 normal;
+        public float time;
+        public float movementSpeed;
+        public float jumpForce;
+    };
+
+    public unsafe delegate float3* ProcessVelocity(VelocityParams* velocityParams);
 
     [BurstCompile]
     public static class VelocityFunctions
     {
-        private static float _airSpeed = 2f; // TODO: Bad, I don't know where to put this
+        private static float _airSpeed = 2f; // TODO: Change speed based on world state(system)
         /**
          * 
          */
         [BurstCompile]
-        public static float3 Run(
-            float3 linearVelocity,
-            float3 forward,
-            float3 right,
-            float3 normal,
-            float t,
-            float speed,
-            float height)
+        public unsafe static float3* Run(VelocityParams* velocityParams)
         {
             // check if supplied time is too low
-            t = MakeTimeCorrect(linearVelocity.x, t, forward.x, speed);
+            // TODO: Not working correctly, debug to find the problem
+            var t = MakeTimeCorrect(velocityParams->linearVelocity.x, velocityParams->time, velocityParams->forward.x, velocityParams->movementSpeed);
 
-            return WalkOnGround(linearVelocity, forward, right, normal, speed, t);
+            velocityParams->linearVelocity = WalkOnGround(
+                velocityParams->linearVelocity, 
+                velocityParams->forward, 
+                velocityParams->right, 
+                velocityParams->normal, 
+                velocityParams->movementSpeed, 
+                t);
+
+            return &velocityParams->linearVelocity;
         }
 
         private static float3 WalkOnGround(float3 vel, float3 forward, float3 right, float3 normal, float speed, float t)
@@ -50,59 +56,47 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public static float3 Stand(
-            float3 linearVelocity,
-            float3 forward,
-            float3 right,
-            float3 normal,
-            float t,
-            float speed,
-            float height)
+        public unsafe static float3* Stand(VelocityParams* velocityParams)
         {
-            t = 1 - t; // inverse, this is ease out quad
+            var t = 1 - velocityParams->time; // inverse, this is ease out quad
 
-            return WalkOnGround(linearVelocity, forward, right, normal, speed, t);
+            velocityParams->linearVelocity = WalkOnGround(
+                velocityParams->linearVelocity, 
+                velocityParams->forward, 
+                velocityParams->right, 
+                velocityParams->normal, 
+                velocityParams->movementSpeed, 
+                t);
+
+            return &velocityParams->linearVelocity;
         }
 
         /**
          * 
          */
         [BurstCompile]
-        public static float3 Jump(
-            float3 linearVelocity,
-            float3 forward,
-            float3 right,
-            float3 normal,
-            float t,
-            float speed,
-            float height)
+        public unsafe static float3* Jump(VelocityParams* velocityParams)
         {
             // TODO: Implement a nice jump based on time and an easing function.
-            if (math.length(normal) > 0)
+            if (math.length(velocityParams->normal) > 0)
             {
-                linearVelocity.y = height;
+                velocityParams->linearVelocity.y = velocityParams->jumpForce;
             }
 
-            return linearVelocity;
+            return &velocityParams->linearVelocity;
         }
 
         /**
          * 
          */
+         //TODO: This has to be additive, x and z should almost stay the same as when leaving the ground
         [BurstCompile]
-        public static float3 Fall(//TODO: Change in a way that speed will be air speed
-            float3 linearVelocity,
-            float3 forward,
-            float3 right,
-            float3 normal,
-            float t,
-            float speed,
-            float height)
+        public unsafe static float3* Fall(VelocityParams* velocityParams)
         {
-            linearVelocity.x = forward.x * _airSpeed * t;
-            linearVelocity.z = forward.z * _airSpeed * t;
+            velocityParams->linearVelocity.x = velocityParams->forward.x * _airSpeed * velocityParams->time;
+            velocityParams->linearVelocity.z = velocityParams->forward.z * _airSpeed * velocityParams->time;
 
-            return linearVelocity;
+            return &velocityParams->linearVelocity;
         }
 
         public static float AllignWithSlope(float slope, float t, float speed)

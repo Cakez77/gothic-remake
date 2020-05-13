@@ -20,17 +20,17 @@ namespace VelocityStateMachine
         private VelocityState Jumping;
         private VelocityState Falling;
 
-        protected override void OnStartRunning()
+        protected unsafe override void OnStartRunning()
         {
             base.OnStartRunning();
 
-            Stand = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Stand);
+            Stand = CompileFunction(VelocityStates.Standing);
 
-            Run = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Run);
+            Run = CompileFunction(VelocityStates.Running);
 
-            Jump = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Jump);
+            Jump = CompileFunction(VelocityStates.Jumping);
 
-            Fall = BurstCompiler.CompileFunctionPointer<ProcessVelocity>(VelocityFunctions.Fall);
+            Fall = CompileFunction(VelocityStates.Falling);
 
 
             Standing = new VelocityState
@@ -91,7 +91,7 @@ namespace VelocityStateMachine
             }).Schedule();
         }
 
-        private FunctionPointer<ProcessVelocity> CompileFunction(VelocityStates state)
+        private unsafe FunctionPointer<ProcessVelocity> CompileFunction(VelocityStates state)
         {
             switch (state)
             {
