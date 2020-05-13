@@ -30,7 +30,7 @@ namespace VelocityStateMachine
             // TODO: Not working correctly, debug to find the problem
             var t = MakeTimeCorrect(velocityParams->linearVelocity.x, velocityParams->time, velocityParams->forward.x, velocityParams->movementSpeed);
 
-            velocityParams->linearVelocity = WalkOnGround(
+            var vel = WalkOnGround(
                 velocityParams->linearVelocity, 
                 velocityParams->forward, 
                 velocityParams->right, 
@@ -38,7 +38,7 @@ namespace VelocityStateMachine
                 velocityParams->movementSpeed, 
                 t);
 
-            return &velocityParams->linearVelocity;
+            return &vel;
         }
 
         private static float3 WalkOnGround(float3 vel, float3 forward, float3 right, float3 normal, float speed, float t)
@@ -60,7 +60,7 @@ namespace VelocityStateMachine
         {
             var t = 1 - velocityParams->time; // inverse, this is ease out quad
 
-            velocityParams->linearVelocity = WalkOnGround(
+            var vel = WalkOnGround(
                 velocityParams->linearVelocity, 
                 velocityParams->forward, 
                 velocityParams->right, 
@@ -68,7 +68,7 @@ namespace VelocityStateMachine
                 velocityParams->movementSpeed, 
                 t);
 
-            return &velocityParams->linearVelocity;
+            return &vel;
         }
 
         /**
