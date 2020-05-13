@@ -45,7 +45,9 @@ public class ApplyVelocitySystem : SystemBase
                         jumpForce = jumpForce.Value
                     };
 
-                    physicsVelocity.Linear = *velocityState.VelocityFunction.Invoke(&velocityParams);
+                    float3 velocity;
+                    velocityState.VelocityFunction.Invoke(&velocityParams, out velocity);
+                    physicsVelocity.Linear = velocity;
 
                 }).Schedule();
     }

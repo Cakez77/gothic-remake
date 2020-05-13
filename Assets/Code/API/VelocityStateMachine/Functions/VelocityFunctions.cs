@@ -14,7 +14,7 @@ namespace VelocityStateMachine
         public float jumpForce;
     };
 
-    public unsafe delegate float3* ProcessVelocity(VelocityParams* velocityParams);
+    public unsafe delegate void ProcessVelocity(VelocityParams* velocityParams, out float3 velocity);
 
     [BurstCompile]
     public static class VelocityFunctions
@@ -24,11 +24,11 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public unsafe static float3* Run(VelocityParams* velocityParams)
+        public unsafe static void Run(VelocityParams* velocityParams, out float3 velocity)
         {
             // check if supplied time is too low
             // TODO: Not working correctly, debug to find the problem
-            var t = MakeTimeCorrect(velocityParams->linearVelocity.x, velocityParams->time, velocityParams->forward.x, velocityParams->movementSpeed);
+            //var t = MakeTimeCorrect(velocityParams->linearVelocity.x, velocityParams->time, velocityParams->forward.x, velocityParams->movementSpeed);
 
             var vel = WalkOnGround(
                 velocityParams->linearVelocity, 
@@ -36,9 +36,9 @@ namespace VelocityStateMachine
                 velocityParams->right, 
                 velocityParams->normal, 
                 velocityParams->movementSpeed, 
-                t);
+                velocityParams->time);
 
-            return &vel;
+            velocity = vel;
         }
 
         private static float3 WalkOnGround(float3 vel, float3 forward, float3 right, float3 normal, float speed, float t)
@@ -56,7 +56,7 @@ namespace VelocityStateMachine
          * 
          */
         [BurstCompile]
-        public unsafe static float3* Stand(VelocityParams* velocityParams)
+        public unsafe static void Stand(VelocityParams* velocityParams, out float3 velocity)
         {
             var t = 1 - velocityParams->time; // inverse, this is ease out quad
 
@@ -68,14 +68,14 @@ namespace VelocityStateMachine
                 velocityParams->movementSpeed, 
                 t);
 
-            return &vel;
+            velocity = vel;
         }
 
         /**
          * 
          */
         [BurstCompile]
-        public unsafe static float3* Jump(VelocityParams* velocityParams)
+        public unsafe static void Jump(VelocityParams* velocityParams, out float3 velocity)
         {
             // TODO: Implement a nice jump based on time and an easing function.
             if (math.length(velocityParams->normal) > 0)
@@ -83,7 +83,7 @@ namespace VelocityStateMachine
                 velocityParams->linearVelocity.y = velocityParams->jumpForce;
             }
 
-            return &velocityParams->linearVelocity;
+            velocity = velocityParams->linearVelocity;
         }
 
         /**
@@ -91,12 +91,12 @@ namespace VelocityStateMachine
          */
          //TODO: This has to be additive, x and z should almost stay the same as when leaving the ground
         [BurstCompile]
-        public unsafe static float3* Fall(VelocityParams* velocityParams)
+        public unsafe static void Fall(VelocityParams* velocityParams, out float3 velocity)
         {
             velocityParams->linearVelocity.x = velocityParams->forward.x * _airSpeed * velocityParams->time;
             velocityParams->linearVelocity.z = velocityParams->forward.z * _airSpeed * velocityParams->time;
 
-            return &velocityParams->linearVelocity;
+            velocity = velocityParams->linearVelocity;
         }
 
         public static float AllignWithSlope(float slope, float t, float speed)
