@@ -1,15 +1,12 @@
 ﻿using Unity.Entities;
-using UnityEngine;
 using Unity.Transforms;
 using Unity.Physics;
 using Unity.Jobs;
 using VelocityStateMachine;
 using Unity.Mathematics;
-using Unity.Physics.Extensions;
 
 //namespace VelocityStateMachine
 //{
-[UpdateAfter(typeof(TransformSystemGroup))]
 public class ApplyVelocitySystem : SystemBase
 {
     protected unsafe override void OnUpdate()

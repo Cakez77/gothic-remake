@@ -1,8 +1,12 @@
 ﻿using Unity.Transforms;
+using Unity.Physics;
 using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Physics.Extensions;
+using Unity.Mathematics;
+using UnityEngine.UIElements;
 
 namespace VelocityStateMachine
 {
@@ -79,16 +83,47 @@ namespace VelocityStateMachine
             var numberOfEvents = Enum.GetNames(typeof(VelocityEvents)).Length;
             var velTransitions = _transitions;
 
-            Entities.ForEach((ref VelocityState currentState, ref TakeoffHeight takeoffHeight, in LocalToWorld ltw, in VelocityEvent velocityEvent) =>
-            {
-                var nextState = velTransitions[(int) velocityEvent.Value];
-
-                if (nextState.Name != currentState.Name) // transition
+            Entities.ForEach(
+                (ref VelocityState currentState,
+                in VelocityEvent velocityEvent,
+                in PhysicsVelocity physicsVelocity,
+                in LocalToWorld ltw,
+                in MovementSpeed movementSpeed) =>
                 {
-                    currentState = nextState;
+                    var nextState = velTransitions[(int) velocityEvent.Value];
+
+                    if (nextState.Name != currentState.Name) // transition
+                    {
+                        currentState = nextState;
+
+                        if (nextState.Name == VelocityStates.Running)
+                        {
+                            currentState.Time = MakeTimeCorrect(
+                                new float2(physicsVelocity.Linear.x, physicsVelocity.Linear.z),
+                                new float2(ltw.Forward.x, ltw.Forward.z),
+                                currentState.Time,
+                                movementSpeed.Value);
+                        }
+                    }
+
+                }).Schedule();
+
+            float MakeTimeCorrect(float2 currentVelocity, float2 forward, float t, float speed)
+            {
+                float2 newVelocity = forward * speed * t * t;
+                var currentMagnitude = math.length(currentVelocity);
+                var nextMagnitude = math.length(newVelocity);
+
+                bool timeIsTooLow = nextMagnitude < currentMagnitude;
+
+                if (timeIsTooLow)
+                {
+                    var additionalTime = currentMagnitude / (math.length(forward) * speed);
+                    t += additionalTime;
                 }
 
-            }).Schedule();
+                return t;
+            }
         }
 
         private unsafe FunctionPointer<ProcessVelocity> CompileFunction(VelocityStates state)
@@ -112,6 +147,8 @@ namespace VelocityStateMachine
 
             }
         }
+
+
 
         protected override void OnStopRunning()
         {

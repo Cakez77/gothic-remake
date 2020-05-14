@@ -1,6 +1,5 @@
 ﻿using Unity.Entities;
 using UnityEngine;
-using VelocityStateMachine;
 
 public class CameraComponents : MonoBehaviour, IConvertGameObjectToEntity {
 
@@ -13,8 +12,7 @@ public class CameraComponents : MonoBehaviour, IConvertGameObjectToEntity {
             typeof(PitchYaw),
             typeof(PlayerDistance),
             typeof(RotationSpeed),
-            typeof(CameraFOV),
-            typeof(TakeoffHeight)));
+            typeof(CameraFOV)));
 
 
         entityManager.SetComponentData(entity, new PlayerDistance { Value = 5.5f });

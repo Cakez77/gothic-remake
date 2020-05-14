@@ -19,17 +19,12 @@ namespace VelocityStateMachine
     [BurstCompile]
     public static class VelocityFunctions
     {
-        private static float _airSpeed = 2f; // TODO: Change speed based on world state(system)
         /**
          * 
          */
         [BurstCompile]
         public unsafe static void Run(VelocityParams* velocityParams, out float3 velocity)
         {
-            // check if supplied time is too low
-            // TODO: Not working correctly, debug to find the problem
-            //var t = MakeTimeCorrect(velocityParams->linearVelocity.x, velocityParams->time, velocityParams->forward.x, velocityParams->movementSpeed);
-
             var vel = WalkOnGround(
                 velocityParams->linearVelocity, 
                 velocityParams->forward, 
@@ -58,14 +53,14 @@ namespace VelocityStateMachine
         [BurstCompile]
         public unsafe static void Stand(VelocityParams* velocityParams, out float3 velocity)
         {
-            var t = 1 - velocityParams->time; // inverse, this is ease out quad
+            var t = 1 - velocityParams->time; // inverse
 
             var vel = WalkOnGround(
                 velocityParams->linearVelocity, 
                 velocityParams->forward, 
                 velocityParams->right, 
                 velocityParams->normal, 
-                velocityParams->movementSpeed, 
+                1f, 
                 t);
 
             velocity = vel;
@@ -93,8 +88,8 @@ namespace VelocityStateMachine
         [BurstCompile]
         public unsafe static void Fall(VelocityParams* velocityParams, out float3 velocity)
         {
-            velocityParams->linearVelocity.x = velocityParams->forward.x * _airSpeed * velocityParams->time;
-            velocityParams->linearVelocity.z = velocityParams->forward.z * _airSpeed * velocityParams->time;
+            velocityParams->linearVelocity.x = velocityParams->forward.x * velocityParams->movementSpeed * velocityParams->time;
+            velocityParams->linearVelocity.z = velocityParams->forward.z * velocityParams->movementSpeed * velocityParams->time;
 
             velocity = velocityParams->linearVelocity;
         }
@@ -107,27 +102,6 @@ namespace VelocityStateMachine
                 pushFactor = 1f;
             }
             return slope * speed * t * t * pushFactor; // Magic number, additional gravity
-        }
-
-        private static float MakeTimeCorrect(float currentVelocity, float t, float forward, float speed)
-        {
-            float additionalTime = 0f;
-
-            float newVelocity = forward * speed * t * t;
-            bool timeIsTooLow = newVelocity < currentVelocity;
-
-            if (timeIsTooLow)
-            {
-                additionalTime = currentVelocity / (forward * speed);
-                t += additionalTime;
-            }
-
-            if (t > 1)
-            {
-                t = 1;
-            }
-
-            return t;
         }
     }
 }

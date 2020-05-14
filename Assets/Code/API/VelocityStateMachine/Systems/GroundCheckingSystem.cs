@@ -26,15 +26,19 @@ namespace VelocityStateMachine
                 (ref GroundNormal groundNormal,
                 ref OnGround onGround,
                 ref TakeoffHeight takeoff,
+                ref MovementSpeed movementSpeed,
                 in LocalToWorld ltw) =>
                 {
                     var position = ltw.Position;
                     var normal = ColliderCast(position, position + new float3(0f, -0.6f, 0f));
                     bool grounded = math.length(normal) > 0;
 
+                    movementSpeed.Value = 1f;
+
                     if (grounded)
                     {
                         takeoff.Value = ltw.Position.y;
+                        movementSpeed.Value = 6f;
                     }
 
                     groundNormal.Value = normal;

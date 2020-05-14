@@ -14,6 +14,7 @@ public class UpdateCameraSystem : SystemBase
 
         var mainCamera = UnityEngine.Camera.main;
         var rotationSmoothnes = GetSingleton<RotationSmothnes>();
+        var takeoff = GetSingleton<TakeoffHeight>();
 
         // Get the player position and direction, and change his rotation
         Entities.WithAll<CameraTargetTag>().ForEach(
@@ -21,8 +22,7 @@ public class UpdateCameraSystem : SystemBase
             in CameraFOV cameraFOV,
             in PitchYaw pitchYaw,
             in LocalToWorld ltw,
-            in PlayerDistance distanceToPlayer,
-            in TakeoffHeight takeoff) =>
+            in PlayerDistance distanceToPlayer) =>
             {
                 var playerPosition = ltw.Position;
                 var playerForward = math.forward(rotation.Value);
